@@ -33,47 +33,36 @@
 
         body::before { content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
 
-        /* LOADING ANIMATIONS - MINIMAL 3D STYLE */
+        /* LOADING ANIMATIONS - MINIMAL STYLE */
         .loader-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 40px; text-align: center; width: 100%; }
         
-        .loader-3d-wrap {
-            width: 72px;
-            height: 72px;
-            perspective: 800px;
+        .loader-icon-wrap {
+            width: 80px;
+            height: 80px;
             margin-bottom: 12px;
+            animation: float-gentle 4s ease-in-out infinite;
         }
 
-        .loader-3d-inner {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            animation: spin-3d 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-
-        @keyframes spin-3d {
-            0% { transform: rotateX(15deg) rotateY(0deg); }
-            50% { transform: rotateX(5deg) rotateY(180deg); }
-            100% { transform: rotateX(15deg) rotateY(360deg); }
+        @keyframes float-gentle {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
         }
 
         .loader-svg {
             width: 100%;
             height: 100%;
-            position: absolute;
-            inset: 0;
-            backface-visibility: visible;
-            filter: drop-shadow(0 8px 16px var(--gold-glow));
+            overflow: visible !important;
         }
 
-        /* Eucharist Glow Animation */
+        /* Eucharist Glow Animation - Adjusted so it doesn't clip into a box */
         .host-glow {
             animation: host-pulse 2.5s infinite ease-in-out;
-            transform-origin: center;
+            transform-origin: 12px 5px; /* Centered precisely on the host */
         }
+        
         @keyframes host-pulse {
-            0%, 100% { transform: scale(1); opacity: 0.75; filter: drop-shadow(0 0 4px var(--text)); }
-            50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 12px var(--text)); }
+            0%, 100% { transform: scale(1); opacity: 0.85; filter: drop-shadow(0 0 4px var(--text)); }
+            50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 10px var(--text)); }
         }
 
         /* Flame Flicker Animation */
@@ -94,11 +83,12 @@
         #landing.exit { transform: translateY(-100%); opacity: 0; }
         .landing-bg-lines { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 60px, var(--border) 60px, var(--border) 61px), repeating-linear-gradient(90deg, transparent, transparent 60px, var(--border) 60px, var(--border) 61px); opacity: 0.4; }
         .landing-center { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 0; }
-        .cross-scene { width: 72px; height: 96px; perspective: 600px; margin-bottom: 40px; }
+        
+        /* Gothic Cross CSS */
+        .cross-scene { width: 72px; height: 100px; perspective: 600px; margin-bottom: 40px; }
         .cross-3d { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; animation: spinY 12s linear infinite; }
-        .cross-arm { position: absolute; background: linear-gradient(135deg, var(--gold2), var(--gold)); border-radius: 2px; }
-        .cross-v { width: 14px; height: 96px; left: 29px; top: 0; }
-        .cross-h { width: 58px; height: 14px; top: 26px; left: 7px; }
+        .gothic-cross { width: 100%; height: 100%; overflow: visible !important; }
+        
         @keyframes spinY { from { transform: rotateY(0); } to { transform: rotateY(360deg); } }
         .landing-eyebrow { font-size: 10px; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 16px; }
         .landing-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(52px, 12vw, 96px); font-weight: 300; line-height: 0.9; text-align: center; letter-spacing: -0.02em; color: var(--text); }
@@ -208,11 +198,9 @@
 
         #emptyState { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; pointer-events: none; z-index: 2; text-align: center; transition: opacity 0.4s; }
         #emptyState.gone { opacity: 0; }
-        .es-cross-scene { width: 72px; height: 96px; perspective: 600px; margin-bottom: 40px; opacity: 0.18; }
-        .es-cross-3d { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; animation: spinY 12s linear infinite; }
-        .es-cross-arm { position: absolute; background: linear-gradient(135deg, var(--gold2), var(--gold)); border-radius: 2px; }
-        .es-cross-v { width: 14px; height: 96px; left: 29px; top: 0; }
-        .es-cross-h { width: 58px; height: 14px; top: 26px; left: 7px; }
+        
+        .es-cross-scene { width: 72px; height: 100px; perspective: 600px; margin-bottom: 40px; opacity: 0.18; }
+        
         .es-verse { font-family: 'Cormorant Garamond', serif; font-size: clamp(18px, 4vw, 28px); font-style: italic; font-weight: 300; line-height: 1.5; color: var(--text); opacity: 0.5; max-width: 600px; margin-bottom: 12px; }
         .es-ref { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); opacity: 0.7; }
 
@@ -265,7 +253,23 @@
 <div id="landing" onclick="enterApp()">
     <div class="landing-bg-lines"></div>
     <div class="landing-center">
-        <div class="cross-scene"><div class="cross-3d"><div class="cross-arm cross-v"></div><div class="cross-arm cross-h"></div></div></div>
+        <div class="cross-scene">
+            <div class="cross-3d">
+                <svg class="gothic-cross" viewBox="0 0 100 140">
+                    <defs>
+                        <linearGradient id="gold-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="var(--gold2)" />
+                            <stop offset="50%" stop-color="var(--gold)" />
+                            <stop offset="100%" stop-color="#9A6E2A" />
+                        </linearGradient>
+                        <filter id="cross-glow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="var(--gold)" flood-opacity="0.3"/>
+                        </filter>
+                    </defs>
+                    <path d="M 50 5 L 65 20 Q 55 30 55 45 Q 70 45 80 35 L 95 50 L 80 65 Q 70 55 55 55 Q 55 80 65 120 L 50 135 L 35 120 Q 45 80 45 55 Q 30 55 20 65 L 5 50 L 20 35 Q 30 45 45 45 Q 45 30 35 20 Z" fill="url(#gold-grad)" filter="url(#cross-glow)"/>
+                </svg>
+            </div>
+        </div>
         <div class="landing-eyebrow">Digital Songbook</div>
         <h1 class="landing-title"><span>Chosen</span><span class="accent">Generations</span></h1>
         <div class="landing-divider"></div>
@@ -333,7 +337,20 @@
 
         <div id="canvasWrap" class="pan-mode">
             <div id="emptyState">
-                <div class="es-cross-scene"><div class="es-cross-3d"><div class="es-cross-arm es-cross-v"></div><div class="es-cross-arm es-cross-h"></div></div></div>
+                <div class="es-cross-scene">
+                    <div class="cross-3d">
+                        <svg class="gothic-cross" viewBox="0 0 100 140">
+                            <defs>
+                                <linearGradient id="gold-grad-empty" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="var(--gold2)" />
+                                    <stop offset="50%" stop-color="var(--gold)" />
+                                    <stop offset="100%" stop-color="#9A6E2A" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M 50 5 L 65 20 Q 55 30 55 45 Q 70 45 80 35 L 95 50 L 80 65 Q 70 55 55 55 Q 55 80 65 120 L 50 135 L 35 120 Q 45 80 45 55 Q 30 55 20 65 L 5 50 L 20 35 Q 30 45 45 45 Q 45 30 35 20 Z" fill="url(#gold-grad-empty)"/>
+                        </svg>
+                    </div>
+                </div>
                 <div class="es-verse" id="esVerse"></div>
                 <div class="es-ref" id="esRef"></div>
             </div>
@@ -410,7 +427,6 @@
     let scrollSpeed = 1; 
     let scrollAccumulator = 0;
 
-    // --- Patience Verses ---
     const patienceVerses = [
         { t: "Be still before the Lord and wait patiently for Him.", r: "Psalm 37:7" },
         { t: "But if we hope for what we do not yet have, we wait for it patiently.", r: "Romans 8:25" },
@@ -422,20 +438,17 @@
         { t: "A person’s wisdom yields patience; it is to one’s glory to overlook an offense.", r: "Proverbs 19:11" }
     ];
 
-    // --- MINIMALISTIC 3D LOADERS ---
     function getJugLoaderHTML() {
         const v = patienceVerses[Math.floor(Math.random() * patienceVerses.length)];
         return `
             <div class="loader-wrap">
-                <div class="loader-3d-wrap">
-                    <div class="loader-3d-inner">
-                        <svg class="loader-svg" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="6" r="3" fill="var(--text)" stroke="none" class="host-glow" />
-                            <path d="M7 10.5c0 4.5 3 5.5 5 5.5s5-1 5-5.5H7z" fill="var(--surface3)"/>
-                            <path d="M12 16v5" />
-                            <path d="M9 21h6" />
-                        </svg>
-                    </div>
+                <div class="loader-icon-wrap">
+                    <svg class="loader-svg" viewBox="-8 -8 40 40" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="5" r="4" fill="var(--text)" stroke="none" class="host-glow" />
+                        <path d="M6 11 C6 16, 9 17, 12 17 C15 17, 18 16, 18 11 Z" fill="var(--surface3)"/>
+                        <path d="M12 17 v6" />
+                        <path d="M8 23 h8" />
+                    </svg>
                 </div>
                 <div class="patience-text">"${v.t}"</div>
                 <div class="patience-ref">— ${v.r}</div>
@@ -447,13 +460,11 @@
         const v = patienceVerses[Math.floor(Math.random() * patienceVerses.length)];
         return `
             <div class="loader-wrap">
-                <div class="loader-3d-wrap">
-                    <div class="loader-3d-inner">
-                        <svg class="loader-svg flame-flicker" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 22c4.5 0 8-3.5 8-8 0-4.5-3-8-8-12-5 4-8 7.5-8 12 0 4.5 3.5 8 8 8z" fill="var(--gold-dim)"/>
-                            <path d="M12 22c2.5 0 4.5-2 4.5-4.5 0-2.5-1.5-4.5-4.5-7.5-3 3-4.5 5-4.5 7.5C7.5 20 9.5 22 12 22z" fill="var(--gold)"/>
-                        </svg>
-                    </div>
+                <div class="loader-icon-wrap">
+                    <svg class="loader-svg flame-flicker" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22c4.5 0 8-3.5 8-8 0-4.5-3-8-8-12-5 4-8 7.5-8 12 0 4.5 3.5 8 8 8z" fill="var(--gold-dim)"/>
+                        <path d="M12 22c2.5 0 4.5-2 4.5-4.5 0-2.5-1.5-4.5-4.5-7.5-3 3-4.5 5-4.5 7.5C7.5 20 9.5 22 12 22z" fill="var(--gold)"/>
+                    </svg>
                 </div>
                 <div class="patience-text">"${v.t}"</div>
                 <div class="patience-ref">— ${v.r}</div>
@@ -464,7 +475,12 @@
     const verses = [
         { text: "Come, let us bow down in worship, let us kneel before the Lord our Maker.", ref: "Psalm 95:6" },
         { text: "Worship the Lord with gladness; come before him with joyful songs.", ref: "Psalm 100:2" },
-        { text: "Let everything that has breath praise the Lord. Praise the Lord.", ref: "Psalm 150:6" }
+        { text: "Let everything that has breath praise the Lord. Praise the Lord.", ref: "Psalm 150:6" },
+        { text: "Let everything that has breath praise the Lord. Praise the Lord.", ref: "Psalm 150:6" },
+        { text: "God is spirit, and his worshipers must worship in the Spirit and in truth.", ref: "John 4:24" },
+        { text: "Sing to the Lord a new song; sing to the Lord, all the earth.", ref: "Psalm 96:1" },
+        { text: "Shout for joy to the Lord, all the earth. Worship the Lord with gladness; come before him with joyful songs.", ref: "Psalm 100:1-2" },
+        { text: "I will praise you, Lord, with all my heart; I will tell of all your wonderful deeds.", ref: "Psalm 9:1" }
     ];
     const v = verses[Math.floor(Math.random() * verses.length)];
     document.getElementById('esVerse').textContent = `"${v.text}"`;
@@ -595,19 +611,16 @@
     updateSwatches();
 
     async function toggleTwoUp() {
-        // 1. Save current drawings before changing layout
         for (let pg in drawCtxs) { 
             if (drawCtxs[pg]) currentNotes[pg] = drawCtxs[pg].canvas.toDataURL('image/png'); 
         }
         
-        // 2. Toggle the mode and UI
         twoUpMode = !twoUpMode;
         document.getElementById('btnTwoUp').classList.toggle('on', twoUpMode);
         
         const container = document.getElementById('pdfContainer');
         container.classList.toggle('two-up', twoUpMode);
 
-        // 3. Instantly re-render locally from memory instead of re-downloading
         if (pdfDoc) {
             drawCtxs = {};
             container.innerHTML = ''; 
@@ -618,7 +631,6 @@
             }
             await Promise.all(renderTasks);
             
-            // Re-apply notes and snap back to the page you were looking at
             applyAnnotations();
             goToPage(currentPage); 
         }
