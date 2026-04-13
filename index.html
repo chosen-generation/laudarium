@@ -33,6 +33,63 @@
 
         body::before { content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
 
+        /* LOADING ANIMATIONS - MINIMAL 3D STYLE */
+        .loader-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 40px; text-align: center; width: 100%; }
+        
+        .loader-3d-wrap {
+            width: 72px;
+            height: 72px;
+            perspective: 800px;
+            margin-bottom: 12px;
+        }
+
+        .loader-3d-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: spin-3d 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes spin-3d {
+            0% { transform: rotateX(15deg) rotateY(0deg); }
+            50% { transform: rotateX(5deg) rotateY(180deg); }
+            100% { transform: rotateX(15deg) rotateY(360deg); }
+        }
+
+        .loader-svg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            inset: 0;
+            backface-visibility: visible;
+            filter: drop-shadow(0 8px 16px var(--gold-glow));
+        }
+
+        /* Eucharist Glow Animation */
+        .host-glow {
+            animation: host-pulse 2.5s infinite ease-in-out;
+            transform-origin: center;
+        }
+        @keyframes host-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.75; filter: drop-shadow(0 0 4px var(--text)); }
+            50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 12px var(--text)); }
+        }
+
+        /* Flame Flicker Animation */
+        .flame-flicker {
+            animation: flicker 3s ease-in-out infinite alternate;
+            transform-origin: 50% 80%;
+        }
+        @keyframes flicker {
+            0% { transform: scaleY(1) skewX(0deg); }
+            50% { transform: scaleY(1.05) skewX(3deg); }
+            100% { transform: scaleY(0.95) skewX(-3deg); }
+        }
+
+        .patience-text { font-style: italic; color: var(--text2); font-size: 14px; max-width: 280px; line-height: 1.5; }
+        .patience-ref { color: var(--gold); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px; }
+
         #landing { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg); cursor: pointer; transition: transform 1.1s cubic-bezier(0.76,0,0.24,1), opacity 0.5s ease; overflow: hidden; }
         #landing.exit { transform: translateY(-100%); opacity: 0; }
         .landing-bg-lines { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 60px, var(--border) 60px, var(--border) 61px), repeating-linear-gradient(90deg, transparent, transparent 60px, var(--border) 60px, var(--border) 61px); opacity: 0.4; }
@@ -87,7 +144,6 @@
         .song-row.active { background: var(--gold-dim); color: var(--gold2); font-weight: 500; border: 1px solid var(--border); }
         .song-row .cat-tag { font-size: 10px; color: var(--text3); margin-top: 2px; display: block; letter-spacing: 0.05em; text-transform: uppercase; }
 
-        /* VIEWER & TOOLBAR LAYOUTS */
         #viewer { flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100vw; background: var(--bg); }
         #topbar { height: 64px; flex-shrink: 0; display: flex; align-items: center; padding: 0 12px; gap: 10px; background: var(--surface); border-bottom: 1px solid var(--border); z-index: 5; }
         .menu-btn { width: 40px; height: 40px; flex-shrink: 0; border-radius: var(--radius-sm); border: 1px solid var(--border); background: transparent; color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
@@ -98,10 +154,8 @@
         .song-info-title { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
         .song-info-folder { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.15em; margin-top: 2px; }
 
-        /* Toolbar scrolling containers */
         .top-tools { flex: 1; display: flex; justify-content: flex-end; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-left: 8px; }
         .top-tools::-webkit-scrollbar { display: none; }
-        
         .bb-scrollable { flex: 1; display: flex; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-left: 8px; }
         .bb-scrollable::-webkit-scrollbar { display: none; }
         .bb-scrollable .toolbar { margin-left: auto; width: max-content; flex-shrink: 0; }
@@ -115,7 +169,6 @@
         @keyframes goldPulse { 0%,100%{ box-shadow: 0 0 0 0 var(--gold-glow); } 50%{ box-shadow: 0 0 0 8px transparent; } }
         .t-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; margin: 0 2px; }
         
-        /* Swatches & Thickness */
         .swatch { width: 18px; height: 18px; flex-shrink: 0; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s, border-color 0.2s; }
         .swatch:hover { transform: scale(1.2); }
         .swatch.on { border-color: var(--text); transform: scale(1.15); }
@@ -133,7 +186,6 @@
         .bb-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
         .page-nav-info { font-size: 12px; color: var(--text2); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-        /* SCROLL SPEED CONTROLLER */
         #speedCtrl { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface); border: 1px solid var(--border); border-radius: 30px; padding: 10px 24px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow-deep); opacity: 0; pointer-events: none; transition: var(--transition); z-index: 100; }
         #speedCtrl.active { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
         .speed-lbl { font-size: 11px; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: 0.15em; }
@@ -145,15 +197,12 @@
         #canvasWrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 
         #pdfContainer { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; transition: none; }
-        
-        /* TWO-UP RESPONSIVE FORCE */
         #pdfContainer.two-up { flex-direction: row; flex-wrap: wrap; width: 100%; justify-content: center; padding: 0 8px; gap: 8px; min-width: 0; }
         #pdfContainer.two-up .pdf-page-wrap { flex: 0 0 calc(50% - 4px); max-width: calc(50% - 4px); margin: 0; }
 
         .pdf-page-wrap { position: relative; box-shadow: var(--shadow-card); border-radius: var(--radius); overflow: hidden; background: white; flex-shrink: 0; transition: box-shadow 0.3s; }
         .pdf-page-wrap canvas { display: block; max-width: 100%; height: auto !important; }
         
-        /* HIGHLIGHTER BLEND MAGIC */
         .draw-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; mix-blend-mode: multiply; }
         .pan-mode .draw-layer { pointer-events: none !important; cursor: default; }
 
@@ -166,10 +215,10 @@
         .es-cross-h { width: 58px; height: 14px; top: 26px; left: 7px; }
         .es-verse { font-family: 'Cormorant Garamond', serif; font-size: clamp(18px, 4vw, 28px); font-style: italic; font-weight: 300; line-height: 1.5; color: var(--text); opacity: 0.5; max-width: 600px; margin-bottom: 12px; }
         .es-ref { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); opacity: 0.7; }
+
         .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle; margin-right: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        .loading-msg { display: flex; align-items: center; color: var(--text2); font-size: 14px; padding: 60px; }
         .err-msg { color: var(--red); text-align: center; padding: 40px; max-width: 360px; margin: auto; background: rgba(224,92,92,0.06); border: 1px solid rgba(224,92,92,0.2); border-radius: var(--radius); font-size: 14px; line-height: 1.6; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .fade-up { animation: fadeUp 0.4s ease backwards; }
@@ -202,7 +251,7 @@
             .save-btn .save-text { display: none; }
             .save-btn::before { content: 'Save'; font-size: 11px; }
             #bottombar { padding: 0 8px; gap: 6px; }
-            .page-nav-info { display: none; } /* Hide page numbers on mobile for extra tool space */
+            .page-nav-info { display: none; }
             #canvasWrap { padding: 12px 6px; }
         }
     </style>
@@ -345,10 +394,8 @@
 <script>
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     
-    // 🔥 REPLACE THIS WITH YOUR NEW WEB APP URL 🔥
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxXYhO4lvB5KlpcjbVJQius0KqXB6DkWkgDWXE0tHjuBeYwWnjqsSbJ2kVbuFtzrWvH/exec';
 
-    // State
     let allSongs = [], groupedSongs = {};
     let currentFile = null, pdfDoc = null;
     let currentTool = 'pan';
@@ -357,50 +404,88 @@
     let drawCtxs = {}, isDrawing = false;
     let twoUpMode = false;
     let currentPage = 1, totalPages = 0;
-    
-    // JSON Ink Layer
     let currentNotes = {};
-
-    // Auto Scroll State
     let autoScrollReq = null;
     let lastScrollTime = 0;
     let scrollSpeed = 1; 
     let scrollAccumulator = 0;
 
-    // Bible verses
+    // --- Patience Verses ---
+    const patienceVerses = [
+        { t: "Be still before the Lord and wait patiently for Him.", r: "Psalm 37:7" },
+        { t: "But if we hope for what we do not yet have, we wait for it patiently.", r: "Romans 8:25" },
+        { t: "The Lord is good to those whose hope is in Him, to the one who seeks Him.", r: "Lamentations 3:25" },
+        { t: "Patience is the companion of wisdom.", r: "St. Augustine" },
+        { t: "Wait for the Lord; be strong and take heart and wait for the Lord.", r: "Psalm 27:14" },
+        { t: "The fruit of the Spirit is love, joy, peace, and patience.", r: "Galatians 5:22" },
+        { t: "If you seek patience, you will find no better example than the Cross.", r: "St. Thomas Aquinas" },
+        { t: "A person’s wisdom yields patience; it is to one’s glory to overlook an offense.", r: "Proverbs 19:11" }
+    ];
+
+    // --- MINIMALISTIC 3D LOADERS ---
+    function getJugLoaderHTML() {
+        const v = patienceVerses[Math.floor(Math.random() * patienceVerses.length)];
+        return `
+            <div class="loader-wrap">
+                <div class="loader-3d-wrap">
+                    <div class="loader-3d-inner">
+                        <svg class="loader-svg" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="6" r="3" fill="var(--text)" stroke="none" class="host-glow" />
+                            <path d="M7 10.5c0 4.5 3 5.5 5 5.5s5-1 5-5.5H7z" fill="var(--surface3)"/>
+                            <path d="M12 16v5" />
+                            <path d="M9 21h6" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="patience-text">"${v.t}"</div>
+                <div class="patience-ref">— ${v.r}</div>
+            </div>
+        `;
+    }
+
+    function getFishLoaderHTML() {
+        const v = patienceVerses[Math.floor(Math.random() * patienceVerses.length)];
+        return `
+            <div class="loader-wrap">
+                <div class="loader-3d-wrap">
+                    <div class="loader-3d-inner">
+                        <svg class="loader-svg flame-flicker" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22c4.5 0 8-3.5 8-8 0-4.5-3-8-8-12-5 4-8 7.5-8 12 0 4.5 3.5 8 8 8z" fill="var(--gold-dim)"/>
+                            <path d="M12 22c2.5 0 4.5-2 4.5-4.5 0-2.5-1.5-4.5-4.5-7.5-3 3-4.5 5-4.5 7.5C7.5 20 9.5 22 12 22z" fill="var(--gold)"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="patience-text">"${v.t}"</div>
+                <div class="patience-ref">— ${v.r}</div>
+            </div>
+        `;
+    }
+
     const verses = [
         { text: "Come, let us bow down in worship, let us kneel before the Lord our Maker.", ref: "Psalm 95:6" },
         { text: "Worship the Lord with gladness; come before him with joyful songs.", ref: "Psalm 100:2" },
-        { text: "Let everything that has breath praise the Lord. Praise the Lord.", ref: "Psalm 150:6" },
-        { text: "Sing to the Lord a new song; sing to the Lord, all the earth.", ref: "Psalm 96:1" },
-        { text: "Shout for joy to the Lord, all the earth, burst into jubilant song with music.", ref: "Psalm 98:4" },
-        { text: "Through Jesus, let us continually offer to God a sacrifice of praise — the fruit of lips that openly profess his name.", ref: "Hebrews 13:15" },
+        { text: "Let everything that has breath praise the Lord. Praise the Lord.", ref: "Psalm 150:6" }
     ];
     const v = verses[Math.floor(Math.random() * verses.length)];
     document.getElementById('esVerse').textContent = `"${v.text}"`;
     document.getElementById('esRef').textContent = `— ${v.ref}`;
 
-    // ── LANDING ──
     function enterApp() {
         document.getElementById('landing').classList.add('exit');
         setTimeout(() => { document.getElementById('landing').style.display = 'none'; openSidebar(); loadLibrary(); }, 600);
     }
 
-    // ── SIDEBAR ──
     function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('active'); }
     function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); }
-    function toggleSidebar() { document.getElementById('sidebar').classList.contains('open') ? closeSidebar() : openSidebar(); }
     function toggleTheme() { const current = document.body.getAttribute('data-theme'); document.body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark'); }
 
-    // ── LIBRARY ──
     async function loadLibrary() {
         const listEl = document.getElementById('songList');
-        if(!allSongs.length) listEl.innerHTML = '<div class="loading-msg"><span class="spinner"></span>Syncing library…</div>';
+        if(!allSongs.length) listEl.innerHTML = getJugLoaderHTML();
         try {
             const res = await fetch(SCRIPT_URL);
             const data = await res.json();
             if (data.error) throw new Error("Backend Error: " + data.error);
-            
             allSongs = data;
             allSongs.sort((a, b) => a.name.localeCompare(b.name));
             groupedSongs = {};
@@ -412,7 +497,6 @@
             renderFolders(Object.keys(groupedSongs).sort());
             updateDatalists();
         } catch (e) {
-            console.error(e); 
             listEl.innerHTML = `<div style="color:var(--red);padding:24px;text-align:center;font-size:13px">Failed to sync.<br><br>${e.message}</div>`;
         }
     }
@@ -425,15 +509,12 @@
             wrap.className = 'folder fade-up';
             wrap.style.animationDelay = (i * 0.04) + 's';
             if(currentFile && (currentFile.category === name || (name === 'General' && currentFile.category === 'CG'))) wrap.classList.add('open');
-
             const hd = document.createElement('div');
             hd.className = 'folder-hd';
             hd.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>${name}<svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>`;
             hd.onclick = () => wrap.classList.toggle('open');
-
             const body = document.createElement('div');
             body.className = 'folder-body';
-
             groupedSongs[name].forEach(song => {
                 const clean = song.name.replace(/\.[^/.]+$/, '');
                 const el = document.createElement('div');
@@ -443,7 +524,6 @@
                 el.onclick = () => { loadSong(el, song, clean, name); closeSidebar(); };
                 body.appendChild(el);
             });
-
             wrap.appendChild(hd); wrap.appendChild(body);
             listEl.appendChild(wrap);
         });
@@ -473,22 +553,15 @@
         document.getElementById('folderListOptionsMove').innerHTML = optionsHtml;
     }
 
-    // ── TOOL, THICKNESS & COLOR MANAGEMENT ──
     const TOOL_BTNS = { pan: ['btnPan'], pen: ['btnPen'], highlight: ['btnHighlight'], eraser: ['btnEraser'] };
     
     function updateSwatches() {
         const isHighlighter = currentTool === 'highlight';
-        // Highlighter: Yellow, Red, Green, Blue | Pen: Black, Brown, Navy Blue, Deep Red
         const colors = isHighlighter ? ['#FDE047', '#F87171', '#4ADE80', '#60A5FA'] : ['#1A1A1A', '#C9A96E', '#1E3A8A', '#991B1B'];
-        
-        // Ensure current color is valid for the active tool
         if (!colors.includes(currentColor)) currentColor = colors[isHighlighter ? 0 : 1];
-        
         const html = colors.map(c => `<div class="swatch ${c === currentColor ? 'on' : ''}" style="background:${c}" onclick="setColor('${c}')"></div>`).join('');
         const elSwatchesBottom = document.getElementById('swatchesBottom');
         if (elSwatchesBottom) elSwatchesBottom.innerHTML = html;
-        
-        // 3 thickness levels
         const thicks = [2, 4, 6];
         const thtml = thicks.map(t => `<div class="thick-btn ${t === currentThickness ? 'on' : ''}" onclick="setThickness(${t})"><div class="thick-dot" style="width:${t*2.5}px;height:${t*2.5}px"></div></div>`).join('');
         const elThickBottom = document.getElementById('thickBottom');
@@ -510,39 +583,54 @@
     function setColor(c) {
         currentColor = c;
         updateSwatches();
-        if (currentTool === 'pan' || currentTool === 'eraser') setTool('pen');
+        if (currentTool === 'pan' || currentTool === 'eraser') setTool(currentTool === 'highlight' ? 'highlight' : 'pen');
     }
 
     function setThickness(t) {
         currentThickness = t;
         updateSwatches();
-        if (currentTool === 'pan' || currentTool === 'eraser') setTool('pen');
+        if (currentTool === 'pan' || currentTool === 'eraser') setTool(currentTool === 'highlight' ? 'highlight' : 'pen');
     }
 
-    // Init UI Elements
     updateSwatches();
 
-    // ── TWO UP MODE ──
-    function toggleTwoUp() {
-        for (let pg in drawCtxs) {
-            currentNotes[pg] = drawCtxs[pg].canvas.toDataURL('image/png');
+    async function toggleTwoUp() {
+        // 1. Save current drawings before changing layout
+        for (let pg in drawCtxs) { 
+            if (drawCtxs[pg]) currentNotes[pg] = drawCtxs[pg].canvas.toDataURL('image/png'); 
         }
+        
+        // 2. Toggle the mode and UI
         twoUpMode = !twoUpMode;
         document.getElementById('btnTwoUp').classList.toggle('on', twoUpMode);
-        document.getElementById('pdfContainer').classList.toggle('two-up', twoUpMode);
-        if (pdfDoc) reRenderAll();
+        
+        const container = document.getElementById('pdfContainer');
+        container.classList.toggle('two-up', twoUpMode);
+
+        // 3. Instantly re-render locally from memory instead of re-downloading
+        if (pdfDoc) {
+            drawCtxs = {};
+            container.innerHTML = ''; 
+            
+            const renderTasks = [];
+            for (let p = 1; p <= totalPages; p++) { 
+                renderTasks.push(renderPage(p)); 
+            }
+            await Promise.all(renderTasks);
+            
+            // Re-apply notes and snap back to the page you were looking at
+            applyAnnotations();
+            goToPage(currentPage); 
+        }
     }
 
-    // ── ADJUSTABLE AUTO SCROLL ──
     function updateScrollSpeed(val) { scrollSpeed = parseFloat(val); }
 
     function autoScrollLoop(timestamp) {
         if (!lastScrollTime) lastScrollTime = timestamp;
         const delta = timestamp - lastScrollTime;
         lastScrollTime = timestamp;
-
         scrollAccumulator += (20 * scrollSpeed) * (delta / 1000);
-        
         if (scrollAccumulator >= 1) {
             const step = Math.floor(scrollAccumulator);
             document.getElementById('canvasWrap').scrollBy({ top: step });
@@ -555,7 +643,6 @@
         const btnS = document.getElementById('btnScroll');
         const iconPlay = document.getElementById('iconPlay'), iconPause = document.getElementById('iconPause');
         const speedCtrl = document.getElementById('speedCtrl');
-
         if (autoScrollReq) {
             cancelAnimationFrame(autoScrollReq); autoScrollReq = null;
             if(btnS) btnS.classList.remove('gold-on');
@@ -565,14 +652,12 @@
             if(btnS) btnS.classList.add('gold-on');
             if (iconPlay) { iconPlay.style.display = 'none'; iconPause.style.display = 'block'; }
             if(speedCtrl) speedCtrl.classList.add('active');
-            
             scrollSpeed = parseFloat(document.getElementById('speedSlider').value);
             lastScrollTime = performance.now();
             autoScrollReq = requestAnimationFrame(autoScrollLoop);
         }
     }
 
-    // ── PAGE NAV ──
     function updatePageNav() { document.getElementById('pageNavInfo').textContent = `${currentPage} / ${totalPages}`; }
     function goToPage(p) {
         if (!pdfDoc || p < 1 || p > totalPages) return;
@@ -597,7 +682,6 @@
         }, { passive: true });
     }
 
-    // ── INK LAYER: APPLY ANNOTATIONS ──
     function applyAnnotations() {
         for (let p in currentNotes) {
             if (drawCtxs[p] && currentNotes[p]) {
@@ -611,11 +695,11 @@
         }
     }
 
-    // ── LOAD SONG ──
     async function loadSong(el, song, name, folder) {
-        document.querySelectorAll('.song-row').forEach(r => r.classList.remove('active'));
-        if(el) el.classList.add('active');
-
+        if(el) {
+            document.querySelectorAll('.song-row').forEach(r => r.classList.remove('active'));
+            el.classList.add('active');
+        }
         document.getElementById('songInfo').style.opacity = '1';
         document.getElementById('topTools').style.opacity = '1';
         document.getElementById('topTools').style.pointerEvents = 'auto';
@@ -627,78 +711,69 @@
         document.getElementById('emptyState').classList.add('gone');
 
         const container = document.getElementById('pdfContainer');
-        container.innerHTML = '<div class="loading-msg"><span class="spinner"></span>Rendering…</div>';
-        currentFile = song; drawCtxs = {}; pdfDoc = null; totalPages = 0; currentPage = 1; currentNotes = {};
-
+        container.innerHTML = getFishLoaderHTML();
+        currentFile = song; drawCtxs = {}; pdfDoc = null; totalPages = 0; currentPage = 1;
         if (autoScrollReq) toggleAutoScroll();
 
         try {
             const res = await fetch(`${SCRIPT_URL}?action=download&id=${song.id}`);
             const data = await res.json();
             if (!data.data) throw new Error('Missing PDF data');
-            const bytes = Uint8Array.from(atob(data.data.replace(/[^A-Za-z0-9+/=]/g, '')), c => c.charCodeAt(0));
+            const raw = atob(data.data);
+            const bytes = new Uint8Array(raw.length);
+            for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
             pdfDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
             totalPages = pdfDoc.numPages;
             container.innerHTML = '';
             container.classList.toggle('two-up', twoUpMode);
-
-            for (let p = 1; p <= totalPages; p++) await renderPage(p);
+            const renderTasks = [];
+            for (let p = 1; p <= totalPages; p++) { renderTasks.push(renderPage(p)); }
+            await Promise.all(renderTasks);
             updatePageNav(); setTool('pan');
-
-            // Fetch Ink Layer Annotations
             try {
                 const noteRes = await fetch(`${SCRIPT_URL}?action=getNotes&pdfId=${song.id}`);
                 currentNotes = await noteRes.json();
                 applyAnnotations();
             } catch (err) { console.log('No previous annotations found.'); }
-
         } catch (err) {
             container.innerHTML = `<div class="err-msg">Error loading document:<br>${err.message}</div>`;
         }
     }
 
-    async function reRenderAll() {
-        if (!pdfDoc) return;
-        const container = document.getElementById('pdfContainer');
-        container.innerHTML = ''; container.classList.toggle('two-up', twoUpMode);
-        drawCtxs = {};
-        for (let p = 1; p <= totalPages; p++) await renderPage(p);
-        applyAnnotations();
-    }
-
     async function renderPage(pageNum) {
         const page = await pdfDoc.getPage(pageNum);
         const container = document.getElementById('pdfContainer');
-        
-        // Accurate side-by-side scaling that perfectly fills small phone screens
         let targetWidth = twoUpMode ? Math.floor((container.clientWidth - 24) / 2) : Math.min(container.clientWidth - 4, 900);
-
         const baseVp = page.getViewport({ scale: 1 });
         const scale = targetWidth / baseVp.width;
         const vp = page.getViewport({ scale });
-
         const wrap = document.createElement('div');
         wrap.className = 'pdf-page-wrap fade-up';
         wrap.style.animationDelay = ((pageNum - 1) * 0.05) + 's';
         wrap.style.width = vp.width + 'px'; wrap.style.height = vp.height + 'px';
-        container.appendChild(wrap);
-
+        wrap.dataset.page = pageNum;
+        let inserted = false;
+        for (let sibling of container.children) {
+            if (parseInt(sibling.dataset.page) > pageNum) {
+                container.insertBefore(wrap, sibling);
+                inserted = true;
+                break;
+            }
+        }
+        if (!inserted) container.appendChild(wrap);
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const pdfCvs = document.createElement('canvas');
         pdfCvs.style.width = vp.width + 'px'; pdfCvs.style.height = vp.height + 'px';
         pdfCvs.width = vp.width * dpr; pdfCvs.height = vp.height * dpr;
         const pdfCtx = pdfCvs.getContext('2d'); pdfCtx.scale(dpr, dpr);
         wrap.appendChild(pdfCvs);
-
         const drawCvs = document.createElement('canvas');
         drawCvs.className = 'draw-layer';
         drawCvs.style.width = vp.width + 'px'; drawCvs.style.height = vp.height + 'px';
         drawCvs.width = vp.width; drawCvs.height = vp.height;
         wrap.appendChild(drawCvs);
-
         const ctx = drawCvs.getContext('2d'); drawCtxs[pageNum] = ctx;
         attachDraw(drawCvs, ctx);
-
         await page.render({ canvasContext: pdfCtx, viewport: vp }).promise;
     }
 
@@ -719,59 +794,30 @@
             if (!drawing || currentTool === 'pan') return;
             const { x, y } = pos(e);
             ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-            
-            if (currentTool === 'eraser') { 
-                ctx.globalCompositeOperation = 'destination-out'; 
-                ctx.lineWidth = currentThickness * 10; 
-                ctx.strokeStyle = 'rgba(0,0,0,1)'; 
-            }
-            else if (currentTool === 'highlight') { 
-                ctx.globalCompositeOperation = 'source-over'; 
-                ctx.lineWidth = currentThickness * 6; // Thicker line for highlight
-                ctx.strokeStyle = currentColor + '66'; // Adds ~40% opacity hex
-            }
-            else { 
-                ctx.globalCompositeOperation = 'source-over'; 
-                ctx.lineWidth = currentThickness; 
-                ctx.strokeStyle = currentColor; 
-            }
-            
+            if (currentTool === 'eraser') { ctx.globalCompositeOperation = 'destination-out'; ctx.lineWidth = currentThickness * 10; ctx.strokeStyle = 'rgba(0,0,0,1)'; }
+            else if (currentTool === 'highlight') { ctx.globalCompositeOperation = 'source-over'; ctx.lineWidth = currentThickness * 6; ctx.strokeStyle = currentColor + '66'; }
+            else { ctx.globalCompositeOperation = 'source-over'; ctx.lineWidth = currentThickness; ctx.strokeStyle = currentColor; }
             ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
             if (e.cancelable) e.preventDefault();
         };
         const up = () => { drawing = false; ctx.globalCompositeOperation = 'source-over'; };
-
         canvas.addEventListener('mousedown', down); canvas.addEventListener('mousemove', move); canvas.addEventListener('mouseup', up); canvas.addEventListener('mouseleave', up);
         canvas.addEventListener('touchstart', down, { passive: false }); canvas.addEventListener('touchmove', move, { passive: false }); canvas.addEventListener('touchend', up);
     }
 
-    // ── MODALS (Upload / Move) ──
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-    function openUploadModal() {
-        closeSidebar();
-        document.getElementById('uploadFileInput').value = "";
-        document.getElementById('uploadFolderInput').value = "";
-        openModal('uploadModal');
-    }
-
-    function openMoveModal() {
-        if(!currentFile) return;
-        document.getElementById('moveFolderInput').value = '';
-        openModal('moveModal');
-    }
+    function openUploadModal() { closeSidebar(); document.getElementById('uploadFileInput').value = ""; document.getElementById('uploadFolderInput').value = ""; openModal('uploadModal'); }
+    function openMoveModal() { if(!currentFile) return; document.getElementById('moveFolderInput').value = ''; openModal('moveModal'); }
 
     async function executeUpload() {
         const fileInput = document.getElementById('uploadFileInput');
         const folderName = document.getElementById('uploadFolderInput').value.trim() || 'General';
         if(fileInput.files.length === 0) return alert('Please select a file to upload.');
-        
         const file = fileInput.files[0];
         const btn = document.getElementById('uploadActionBtn');
         const origText = btn.innerText;
         btn.innerHTML = '<span class="spinner"></span> Uploading...'; btn.disabled = true;
-
         const reader = new FileReader();
         reader.onload = async function() {
             try {
@@ -797,7 +843,6 @@
         const btn = document.getElementById('moveActionBtn');
         const origText = btn.innerText;
         btn.innerHTML = '<span class="spinner"></span> Moving...'; btn.disabled = true;
-
         try {
             const req = await fetch(SCRIPT_URL, {
                 method: 'POST',
@@ -813,34 +858,23 @@
         } catch (err) { alert('Move failed: ' + err.message); } finally { btn.innerHTML = origText; btn.disabled = false; }
     }
 
-    // ── SAVE TO INK LAYER ──
     async function saveAnnotations() {
         if (!currentFile || !pdfDoc) return;
         const btnList = document.querySelectorAll('.save-btn');
         const origHTMLs = Array.from(btnList).map(b => b.innerHTML);
-        
-        btnList.forEach(btn => {
-            btn.innerHTML = '<span class="spinner" style="border-top-color:var(--gold)"></span>';
-            btn.style.pointerEvents = 'none';
-        });
-
+        btnList.forEach(btn => { btn.innerHTML = '<span class="spinner" style="border-top-color:var(--gold)"></span>'; btn.style.pointerEvents = 'none'; });
         try {
-            for (let pg in drawCtxs) {
-                currentNotes[pg] = drawCtxs[pg].canvas.toDataURL('image/png');
-            }
-
+            for (let pg in drawCtxs) { currentNotes[pg] = drawCtxs[pg].canvas.toDataURL('image/png'); }
             const saveReq = await fetch(SCRIPT_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                 body: JSON.stringify({ action: 'saveNotes', pdfId: currentFile.id, notes: currentNotes })
             });
-            
             const saveRes = await saveReq.json();
             if (saveRes.success) {
                 btnList.forEach(btn => { btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg>'; });
                 setTimeout(() => { btnList.forEach((btn, i) => { btn.innerHTML = origHTMLs[i]; btn.style.pointerEvents = 'auto'; }); }, 2000);
             } else { throw new Error(saveRes.error); }
-
         } catch (e) {
             alert('Save failed: ' + e.message);
             btnList.forEach((btn, i) => { btn.innerHTML = origHTMLs[i]; btn.style.pointerEvents = 'auto'; });
