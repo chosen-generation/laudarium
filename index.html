@@ -6,6 +6,7 @@
     <title>Chosen Generations — Chord Sheets</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <style>
         :root {
             --bg: #0A0806; --bg2: #100D0A; --surface: #161210; --surface2: #1E1A17; --surface3: #252018;
@@ -86,17 +87,26 @@
         .song-row.active { background: var(--gold-dim); color: var(--gold2); font-weight: 500; border: 1px solid var(--border); }
         .song-row .cat-tag { font-size: 10px; color: var(--text3); margin-top: 2px; display: block; letter-spacing: 0.05em; text-transform: uppercase; }
 
+        /* VIEWER & TOOLBAR LAYOUTS */
         #viewer { flex: 1; display: flex; flex-direction: column; overflow: hidden; width: 100vw; background: var(--bg); }
         #topbar { height: 64px; flex-shrink: 0; display: flex; align-items: center; padding: 0 12px; gap: 10px; background: var(--surface); border-bottom: 1px solid var(--border); z-index: 5; }
         .menu-btn { width: 40px; height: 40px; flex-shrink: 0; border-radius: var(--radius-sm); border: 1px solid var(--border); background: transparent; color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
         .menu-btn:hover { background: var(--surface2); }
         .menu-btn svg { width: 18px; height: 18px; }
-        .song-info { flex: 1; overflow: hidden; }
+        
+        .song-info { display: flex; flex-direction: column; min-width: 0; }
         .song-info-title { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; }
         .song-info-folder { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.15em; margin-top: 2px; }
 
-        .toolbar { display: flex; align-items: center; gap: 4px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-shrink: 0; }
-        .toolbar::-webkit-scrollbar { display: none; }
+        /* Toolbar scrolling containers */
+        .top-tools { flex: 1; display: flex; justify-content: flex-end; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-left: 8px; }
+        .top-tools::-webkit-scrollbar { display: none; }
+        
+        .bb-scrollable { flex: 1; display: flex; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-left: 8px; }
+        .bb-scrollable::-webkit-scrollbar { display: none; }
+        .bb-scrollable .toolbar { margin-left: auto; width: max-content; flex-shrink: 0; }
+
+        .toolbar { display: flex; align-items: center; gap: 4px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px; flex-shrink: 0; }
         .t-btn { width: 34px; height: 34px; flex-shrink: 0; border-radius: 6px; border: none; background: transparent; color: var(--text2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); position: relative; }
         .t-btn svg { width: 16px; height: 16px; stroke-width: 2; }
         .t-btn:hover { background: var(--surface3); color: var(--text); }
@@ -104,16 +114,23 @@
         .t-btn.gold-on { background: var(--gold); color: var(--bg); animation: goldPulse 2s infinite; }
         @keyframes goldPulse { 0%,100%{ box-shadow: 0 0 0 0 var(--gold-glow); } 50%{ box-shadow: 0 0 0 8px transparent; } }
         .t-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; margin: 0 2px; }
+        
+        /* Swatches & Thickness */
         .swatch { width: 18px; height: 18px; flex-shrink: 0; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s, border-color 0.2s; }
         .swatch:hover { transform: scale(1.2); }
         .swatch.on { border-color: var(--text); transform: scale(1.15); }
+        .thick-btn { width: 22px; height: 22px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid transparent; transition: var(--transition); }
+        .thick-btn:hover { background: var(--surface3); }
+        .thick-btn.on { border-color: var(--border); background: var(--surface3); }
+        .thick-dot { border-radius: 50%; background: var(--text3); transition: var(--transition); }
+        .thick-btn.on .thick-dot { background: var(--gold); }
 
-        .save-btn { padding: 7px 14px; flex-shrink: 0; background: transparent; border: 1px solid var(--gold); border-radius: 20px; color: var(--gold); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: var(--transition); white-space: nowrap; }
+        .save-btn { padding: 7px 14px; flex-shrink: 0; background: transparent; border: 1px solid var(--gold); border-radius: 20px; color: var(--gold); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: var(--transition); white-space: nowrap; margin-left: 8px; }
         .save-btn:hover { background: var(--gold); color: var(--bg); box-shadow: 0 4px 20px var(--gold-glow); }
 
-        #bottombar { height: 60px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; gap: 8px; background: var(--surface); border-top: 1px solid var(--border); z-index: 5; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        #bottombar { height: 60px; flex-shrink: 0; display: flex; align-items: center; padding: 0 12px; gap: 8px; background: var(--surface); border-top: 1px solid var(--border); z-index: 5; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         #bottombar.visible { opacity: 1; pointer-events: auto; }
-        .bb-group { display: flex; align-items: center; gap: 6px; }
+        .bb-group { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
         .page-nav-info { font-size: 12px; color: var(--text2); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
         /* SCROLL SPEED CONTROLLER */
@@ -128,12 +145,16 @@
         #canvasWrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 
         #pdfContainer { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; transition: none; }
-        #pdfContainer.two-up { flex-direction: row; flex-wrap: nowrap; width: max-content; min-width: 100%; justify-content: center; padding: 0 8px; gap: 16px; }
-        #pdfContainer.two-up .pdf-page-wrap { flex: 0 0 auto; margin: 0; }
+        
+        /* TWO-UP RESPONSIVE FORCE */
+        #pdfContainer.two-up { flex-direction: row; flex-wrap: wrap; width: 100%; justify-content: center; padding: 0 8px; gap: 8px; min-width: 0; }
+        #pdfContainer.two-up .pdf-page-wrap { flex: 0 0 calc(50% - 4px); max-width: calc(50% - 4px); margin: 0; }
 
         .pdf-page-wrap { position: relative; box-shadow: var(--shadow-card); border-radius: var(--radius); overflow: hidden; background: white; flex-shrink: 0; transition: box-shadow 0.3s; }
         .pdf-page-wrap canvas { display: block; max-width: 100%; height: auto !important; }
-        .draw-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+        
+        /* HIGHLIGHTER BLEND MAGIC */
+        .draw-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; mix-blend-mode: multiply; }
         .pan-mode .draw-layer { pointer-events: none !important; cursor: default; }
 
         #emptyState { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; pointer-events: none; z-index: 2; text-align: center; transition: opacity 0.4s; }
@@ -174,8 +195,14 @@
         .modal-btn.primary:hover { box-shadow: 0 4px 15px var(--gold-glow); }
 
         @media (max-width: 480px) {
+            #topbar { padding: 0 8px; gap: 6px; }
+            .menu-btn { width: 34px; height: 34px; }
+            .song-info-title { font-size: 13px; }
+            .save-btn { padding: 6px 10px; margin-left: 4px; }
             .save-btn .save-text { display: none; }
             .save-btn::before { content: 'Save'; font-size: 11px; }
+            #bottombar { padding: 0 8px; gap: 6px; }
+            .page-nav-info { display: none; } /* Hide page numbers on mobile for extra tool space */
             #canvasWrap { padding: 12px 6px; }
         }
     </style>
@@ -224,6 +251,7 @@
     </aside>
 
     <div id="viewer">
+        
         <header id="topbar">
             <button class="menu-btn" onclick="openSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
             <div class="song-info" id="songInfo" style="opacity:0;transition:opacity 0.3s">
@@ -231,30 +259,22 @@
                 <div class="song-info-folder" id="songFolder"></div>
             </div>
 
-            <div class="toolbar" id="toolbar" style="opacity:0;pointer-events:none;transition:opacity 0.3s">
-                <button class="t-btn" id="btnMove" onclick="openMoveModal()" title="Move File">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="8" y1="14" x2="16" y2="14"/><polyline points="13 11 16 14 13 17"/></svg>
-                </button>
-                <div class="t-sep"></div>
-
-                <button class="t-btn" id="btnScroll" onclick="toggleAutoScroll()" title="Auto Scroll">
-                    <svg id="iconPlay" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                    <svg id="iconPause" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                </button>
-                <div class="t-sep"></div>
-                <button class="t-btn" id="btnTwoUp" onclick="toggleTwoUp()" title="Two pages side by side"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/></svg></button>
-                <div class="t-sep"></div>
-                <button class="t-btn on" id="btnPan" onclick="setTool('pan')" title="Pan / Scroll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 11V6a2 2 0 0 0-4 0v4"/><path d="M14 10V5a2 2 0 0 0-4 0v5"/><path d="M10 10.5V4a2 2 0 0 0-4 0v9.5"/><path d="M6 14v-1.5a2 2 0 0 0-4 0v4c0 4.4 3.6 8 8 8h2c4.4 0 8-3.6 8-8v-5.5a2 2 0 0 0-4 0v4"/></svg></button>
-                <button class="t-btn" id="btnPen" onclick="setTool('pen')" title="Pen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg></button>
-                <button class="t-btn" id="btnHighlight" onclick="setTool('highlight')" title="Highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
-                <button class="t-btn" id="btnEraser" onclick="setTool('eraser')" title="Eraser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 20H7L3 16C2.5 15.5 2.5 14.5 3 14L13 4C13.5 3.5 14.5 3.5 15 4L20 9C20.5 9.5 20.5 10.5 20 11L11 20"/><path d="M16 8L10 14"/></svg></button>
-                <div class="t-sep"></div>
-                <div class="swatch on" style="background:#C9A96E" onclick="setColor('#C9A96E',this)"></div>
-                <div class="swatch" style="background:#E05C5C" onclick="setColor('#E05C5C',this)"></div>
-                <div class="swatch" style="background:#5C8AE0" onclick="setColor('#5C8AE0',this)"></div>
+            <div class="top-tools" id="topTools" style="opacity:0;pointer-events:none;transition:opacity 0.3s">
+                <div class="toolbar">
+                    <button class="t-btn" id="btnMove" onclick="openMoveModal()" title="Move File">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="8" y1="14" x2="16" y2="14"/><polyline points="13 11 16 14 13 17"/></svg>
+                    </button>
+                    <div class="t-sep"></div>
+                    <button class="t-btn" id="btnScroll" onclick="toggleAutoScroll()" title="Auto Scroll">
+                        <svg id="iconPlay" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <svg id="iconPause" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                    </button>
+                    <div class="t-sep"></div>
+                    <button class="t-btn" id="btnTwoUp" onclick="toggleTwoUp()" title="Two pages side by side"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="3" width="9" height="18" rx="1"/><rect x="13" y="3" width="9" height="18" rx="1"/></svg></button>
+                </div>
             </div>
 
-            <button class="save-btn" id="saveBtn" onclick="saveAnnotations()" style="opacity:0;pointer-events:none;transition:opacity 0.3s;margin-left:8px"><span class="save-text">Save Notes</span></button>
+            <button class="save-btn" id="saveBtn" onclick="saveAnnotations()" style="opacity:0;pointer-events:none;transition:opacity 0.3s;"><span class="save-text">Save Notes</span></button>
         </header>
 
         <div id="speedCtrl">
@@ -277,20 +297,18 @@
                 <span class="page-nav-info" id="pageNavInfo">— / —</span>
                 <button class="icon-btn" onclick="nextPage()" title="Next page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
             </div>
-            <div class="bb-group" style="gap:8px">
+            <div class="bb-scrollable">
                 <div class="toolbar" id="bottomToolbar">
-                    <button class="t-btn" id="btnScroll2" onclick="toggleAutoScroll()" title="Auto Scroll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg></button>
+                    <button class="t-btn on" id="btnPan" onclick="setTool('pan')" title="Pan / Scroll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 11V6a2 2 0 0 0-4 0v4"/><path d="M14 10V5a2 2 0 0 0-4 0v5"/><path d="M10 10.5V4a2 2 0 0 0-4 0v9.5"/><path d="M6 14v-1.5a2 2 0 0 0-4 0v4c0 4.4 3.6 8 8 8h2c4.4 0 8-3.6 8-8v-5.5a2 2 0 0 0-4 0v4"/></svg></button>
+                    <button class="t-btn" id="btnPen" onclick="setTool('pen')" title="Pen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg></button>
+                    <button class="t-btn" id="btnHighlight" onclick="setTool('highlight')" title="Highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
+                    <button class="t-btn" id="btnEraser" onclick="setTool('eraser')" title="Eraser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 20H7L3 16C2.5 15.5 2.5 14.5 3 14L13 4C13.5 3.5 14.5 3.5 15 4L20 9C20.5 9.5 20.5 10.5 20 11L11 20"/><path d="M16 8L10 14"/></svg></button>
+                    
                     <div class="t-sep"></div>
-                    <button class="t-btn on" id="btnPan2" onclick="setTool('pan')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 11V6a2 2 0 0 0-4 0v4"/><path d="M14 10V5a2 2 0 0 0-4 0v5"/><path d="M10 10.5V4a2 2 0 0 0-4 0v9.5"/><path d="M6 14v-1.5a2 2 0 0 0-4 0v4c0 4.4 3.6 8 8 8h2c4.4 0 8-3.6 8-8v-5.5a2 2 0 0 0-4 0v4"/></svg></button>
-                    <button class="t-btn" id="btnPen2" onclick="setTool('pen')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg></button>
-                    <button class="t-btn" id="btnHighlight2" onclick="setTool('highlight')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
-                    <button class="t-btn" id="btnEraser2" onclick="setTool('eraser')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 20H7L3 16C2.5 15.5 2.5 14.5 3 14L13 4C13.5 3.5 14.5 3.5 15 4L20 9C20.5 9.5 20.5 10.5 20 11L11 20"/><path d="M16 8L10 14"/></svg></button>
+                    <div id="thickBottom" style="display:flex;align-items:center;gap:2px"></div>
                     <div class="t-sep"></div>
-                    <div class="swatch on" style="background:#C9A96E" onclick="setColor('#C9A96E',this)"></div>
-                    <div class="swatch" style="background:#E05C5C" onclick="setColor('#E05C5C',this)"></div>
-                    <div class="swatch" style="background:#5C8AE0" onclick="setColor('#5C8AE0',this)"></div>
+                    <div id="swatchesBottom" style="display:flex;align-items:center;gap:4px"></div>
                 </div>
-                <button class="save-btn" onclick="saveAnnotations()"><span class="save-text">Save</span></button>
             </div>
         </footer>
     </div>
@@ -333,7 +351,9 @@
     // State
     let allSongs = [], groupedSongs = {};
     let currentFile = null, pdfDoc = null;
-    let currentTool = 'pan', currentColor = '#C9A96E';
+    let currentTool = 'pan';
+    let currentColor = '#C9A96E';
+    let currentThickness = 3;
     let drawCtxs = {}, isDrawing = false;
     let twoUpMode = false;
     let currentPage = 1, totalPages = 0;
@@ -453,27 +473,60 @@
         document.getElementById('folderListOptionsMove').innerHTML = optionsHtml;
     }
 
-    // ── TOOL MANAGEMENT ──
-    const TOOL_BTNS = { pan: ['btnPan','btnPan2'], pen: ['btnPen','btnPen2'], highlight: ['btnHighlight','btnHighlight2'], eraser: ['btnEraser','btnEraser2'] };
-    function setTool(t) {
-        currentTool = t;
-        Object.keys(TOOL_BTNS).forEach(key => { TOOL_BTNS[key].forEach(id => { const btn = document.getElementById(id); if (btn) btn.classList.toggle('on', key === t); }); });
-        document.getElementById('canvasWrap').classList.toggle('pan-mode', t === 'pan');
+    // ── TOOL, THICKNESS & COLOR MANAGEMENT ──
+    const TOOL_BTNS = { pan: ['btnPan'], pen: ['btnPen'], highlight: ['btnHighlight'], eraser: ['btnEraser'] };
+    
+    function updateSwatches() {
+        const isHighlighter = currentTool === 'highlight';
+        // Highlighter: Yellow, Red, Green, Blue | Pen: Black, Brown, Navy Blue, Deep Red
+        const colors = isHighlighter ? ['#FDE047', '#F87171', '#4ADE80', '#60A5FA'] : ['#1A1A1A', '#C9A96E', '#1E3A8A', '#991B1B'];
+        
+        // Ensure current color is valid for the active tool
+        if (!colors.includes(currentColor)) currentColor = colors[isHighlighter ? 0 : 1];
+        
+        const html = colors.map(c => `<div class="swatch ${c === currentColor ? 'on' : ''}" style="background:${c}" onclick="setColor('${c}')"></div>`).join('');
+        const elSwatchesBottom = document.getElementById('swatchesBottom');
+        if (elSwatchesBottom) elSwatchesBottom.innerHTML = html;
+        
+        // 3 thickness levels
+        const thicks = [2, 4, 6];
+        const thtml = thicks.map(t => `<div class="thick-btn ${t === currentThickness ? 'on' : ''}" onclick="setThickness(${t})"><div class="thick-dot" style="width:${t*2.5}px;height:${t*2.5}px"></div></div>`).join('');
+        const elThickBottom = document.getElementById('thickBottom');
+        if (elThickBottom) elThickBottom.innerHTML = thtml;
     }
 
-    function setColor(c, el) {
+    function setTool(t) {
+        currentTool = t;
+        Object.keys(TOOL_BTNS).forEach(key => { 
+            TOOL_BTNS[key].forEach(id => { 
+                const btn = document.getElementById(id); 
+                if (btn) btn.classList.toggle('on', key === t); 
+            }); 
+        });
+        document.getElementById('canvasWrap').classList.toggle('pan-mode', t === 'pan');
+        updateSwatches();
+    }
+
+    function setColor(c) {
         currentColor = c;
-        document.querySelectorAll('.swatch').forEach(s => s.classList.remove('on'));
-        document.querySelectorAll('.swatch').forEach(s => { if (s.style.background === c || s.style.background.replace(/\s/g,'') === c) s.classList.add('on'); });
+        updateSwatches();
         if (currentTool === 'pan' || currentTool === 'eraser') setTool('pen');
     }
 
+    function setThickness(t) {
+        currentThickness = t;
+        updateSwatches();
+        if (currentTool === 'pan' || currentTool === 'eraser') setTool('pen');
+    }
+
+    // Init UI Elements
+    updateSwatches();
+
+    // ── TWO UP MODE ──
     function toggleTwoUp() {
-        // Save current canvas states to memory before re-rendering
         for (let pg in drawCtxs) {
             currentNotes[pg] = drawCtxs[pg].canvas.toDataURL('image/png');
         }
-
         twoUpMode = !twoUpMode;
         document.getElementById('btnTwoUp').classList.toggle('on', twoUpMode);
         document.getElementById('pdfContainer').classList.toggle('two-up', twoUpMode);
@@ -499,19 +552,19 @@
     }
 
     function toggleAutoScroll() {
-        const btnS = document.getElementById('btnScroll'), btnS2 = document.getElementById('btnScroll2');
+        const btnS = document.getElementById('btnScroll');
         const iconPlay = document.getElementById('iconPlay'), iconPause = document.getElementById('iconPause');
         const speedCtrl = document.getElementById('speedCtrl');
 
         if (autoScrollReq) {
             cancelAnimationFrame(autoScrollReq); autoScrollReq = null;
-            btnS.classList.remove('gold-on'); btnS2.classList.remove('gold-on');
+            if(btnS) btnS.classList.remove('gold-on');
             if (iconPlay) { iconPlay.style.display = 'block'; iconPause.style.display = 'none'; }
-            speedCtrl.classList.remove('active');
+            if(speedCtrl) speedCtrl.classList.remove('active');
         } else {
-            btnS.classList.add('gold-on'); btnS2.classList.add('gold-on');
+            if(btnS) btnS.classList.add('gold-on');
             if (iconPlay) { iconPlay.style.display = 'none'; iconPause.style.display = 'block'; }
-            speedCtrl.classList.add('active');
+            if(speedCtrl) speedCtrl.classList.add('active');
             
             scrollSpeed = parseFloat(document.getElementById('speedSlider').value);
             lastScrollTime = performance.now();
@@ -564,8 +617,8 @@
         if(el) el.classList.add('active');
 
         document.getElementById('songInfo').style.opacity = '1';
-        document.getElementById('toolbar').style.opacity = '1';
-        document.getElementById('toolbar').style.pointerEvents = 'auto';
+        document.getElementById('topTools').style.opacity = '1';
+        document.getElementById('topTools').style.pointerEvents = 'auto';
         document.getElementById('saveBtn').style.opacity = '1';
         document.getElementById('saveBtn').style.pointerEvents = 'auto';
         document.getElementById('bottombar').classList.add('visible');
@@ -617,7 +670,8 @@
         const page = await pdfDoc.getPage(pageNum);
         const container = document.getElementById('pdfContainer');
         
-        let targetWidth = twoUpMode ? Math.max(Math.floor((container.clientWidth - 32) / 2), 350) : Math.min(container.clientWidth - 4, 900);
+        // Accurate side-by-side scaling that perfectly fills small phone screens
+        let targetWidth = twoUpMode ? Math.floor((container.clientWidth - 24) / 2) : Math.min(container.clientWidth - 4, 900);
 
         const baseVp = page.getViewport({ scale: 1 });
         const scale = targetWidth / baseVp.width;
@@ -665,9 +719,23 @@
             if (!drawing || currentTool === 'pan') return;
             const { x, y } = pos(e);
             ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-            if (currentTool === 'eraser') { ctx.globalCompositeOperation = 'destination-out'; ctx.lineWidth = 32; ctx.strokeStyle = 'rgba(0,0,0,1)'; }
-            else if (currentTool === 'highlight') { ctx.globalCompositeOperation = 'source-over'; ctx.lineWidth = 22; ctx.strokeStyle = currentColor + '50'; }
-            else { ctx.globalCompositeOperation = 'source-over'; ctx.lineWidth = 3; ctx.strokeStyle = currentColor; }
+            
+            if (currentTool === 'eraser') { 
+                ctx.globalCompositeOperation = 'destination-out'; 
+                ctx.lineWidth = currentThickness * 10; 
+                ctx.strokeStyle = 'rgba(0,0,0,1)'; 
+            }
+            else if (currentTool === 'highlight') { 
+                ctx.globalCompositeOperation = 'source-over'; 
+                ctx.lineWidth = currentThickness * 6; // Thicker line for highlight
+                ctx.strokeStyle = currentColor + '66'; // Adds ~40% opacity hex
+            }
+            else { 
+                ctx.globalCompositeOperation = 'source-over'; 
+                ctx.lineWidth = currentThickness; 
+                ctx.strokeStyle = currentColor; 
+            }
+            
             ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
             if (e.cancelable) e.preventDefault();
         };
@@ -757,7 +825,6 @@
         });
 
         try {
-            // Collect the transparent ink layer from every page
             for (let pg in drawCtxs) {
                 currentNotes[pg] = drawCtxs[pg].canvas.toDataURL('image/png');
             }
