@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Chosen Generations — Prayer Book</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Cinzel:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #080608; --bg2: #0E0B0F; --surface: #141018; --surface2: #1C1622; --surface3: #241D2C;
+            --text: #F0E8E0; --text2: #9A8E8A; --text3: #4A4248;
+            --gold: #C9A96E; --gold2: #E8C990; --gold3: #F5DCA0; --gold-glow: rgba(201,169,110,0.35);
+            --gold-dim: rgba(201,169,110,0.08);
+            --blue: #3B82F6; --blue2: #60A5FA; --blue-glow: rgba(59,130,246,0.35); --blue-dim: rgba(59,130,246,0.08);
+            --red: #EF4444; --red2: #F87171; --red-glow: rgba(239,68,68,0.35); --red-dim: rgba(239,68,68,0.08);
+            --silver: #A1A1AA; --silver2: #D4D4D8; --silver-glow: rgba(161,161,170,0.35); --silver-dim: rgba(161,161,170,0.08);
+            --purple: #8B5CF6; --purple2: #A78BFA; --purple-glow: rgba(139,92,246,0.35); --purple-dim: rgba(139,92,246,0.08);
+            --emerald: #10B981; --emerald2: #34D399; --emerald-glow: rgba(16,185,129,0.35); --emerald-dim: rgba(16,185,129,0.08);
+            --crimson: #E11D48; --crimson2: #FB7185; --crimson-glow: rgba(225,29,72,0.35); --crimson-dim: rgba(225,29,72,0.08);
+            --teal: #0D9488; --teal2: #2DD4BF; --teal-glow: rgba(13,148,136,0.35); --teal-dim: rgba(13,148,136,0.08);
+            --border: rgba(240,234,224,0.07);
+            --radius: 20px; --radius-sm: 10px;
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        [data-theme="light"] {
+            --bg: #F5F0E8; --bg2: #EDE8DE; --surface: #FFFFFF; --surface2: #F8F4EE; --surface3: #F0EAE0;
+            --text: #1A1410; --text2: #6B6058; --text3: #B0A09A;
+            --gold: #A07828; --gold2: #C49030; --gold3: #D4A040; --gold-glow: rgba(160,120,40,0.3);
+            --gold-dim: rgba(160,120,40,0.08);
+            --blue: #2563EB; --blue2: #3B82F6; --blue-glow: rgba(37,99,235,0.3); --blue-dim: rgba(37,99,235,0.07);
+            --red: #DC2626; --red2: #EF4444; --red-glow: rgba(220,38,38,0.3); --red-dim: rgba(220,38,38,0.07);
+            --silver: #52525B; --silver2: #71717A; --silver-glow: rgba(82,82,91,0.3); --silver-dim: rgba(82,82,91,0.07);
+            --purple: #7C3AED; --purple2: #8B5CF6; --purple-glow: rgba(124,58,237,0.3); --purple-dim: rgba(124,58,237,0.07);
+            --emerald: #059669; --emerald2: #10B981; --emerald-glow: rgba(5,150,105,0.3); --emerald-dim: rgba(5,150,105,0.07);
+            --crimson: #BE123C; --crimson2: #E11D48; --crimson-glow: rgba(190,18,60,0.3); --crimson-dim: rgba(190,18,60,0.07);
+            --teal: #0F766E; --teal2: #14B8A6; --teal-glow: rgba(15,118,110,0.3); --teal-dim: rgba(15,118,110,0.07);
+            --border: rgba(26,20,16,0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+
+        body::after { content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+        #prayerApp { display: flex; height: 100dvh; width: 100vw; flex-direction: column; overflow: hidden; }
+
+        /* ── TOP BAR ── */
+        #prayerTopBar {
+            height: 60px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+            background: rgba(8,6,8,0.85); backdrop-filter: blur(20px) saturate(1.5);
+            border-bottom: 1px solid var(--border); z-index: 100;
+        }
+        [data-theme="light"] #prayerTopBar { background: rgba(245,240,232,0.88); }
+        .prayer-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--gold2); font-weight: 600; font-style: italic; letter-spacing: 0.08em; }
+
+        .icon-btn { width: 38px; height: 38px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: transparent; color: var(--text2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s var(--ease); outline: none; }
+        .icon-btn:hover { color: var(--text); border-color: var(--gold); background: var(--gold-dim); }
+        .icon-btn svg { width: 17px; height: 17px; }
+        .sun-icon, .moon-icon { position: absolute; transition: all 0.35s var(--ease); }
+        [data-theme="dark"] .sun-icon { opacity: 0; transform: rotate(-90deg) scale(0.5); }
+        [data-theme="dark"] .moon-icon { opacity: 1; transform: rotate(0) scale(1); }
+        [data-theme="light"] .moon-icon { opacity: 0; transform: rotate(90deg) scale(0.5); }
+        [data-theme="light"] .sun-icon { opacity: 1; transform: rotate(0) scale(1); }
+
+        #prayerContent { flex: 1; overflow: hidden; position: relative; }
+
+        /* ══════════════════════════════════════════════════ */
+        /*   MAIN MENU                                        */
+        /* ══════════════════════════════════════════════════ */
+        #prayerMainMenu {
+            position: absolute; inset: 0; z-index: 20;
+            background: var(--bg);
+            display: flex; flex-direction: column;
+            overflow-y: auto;
+            transition: opacity 0.45s var(--ease), transform 0.45s var(--ease);
+        }
+        #prayerMainMenu::-webkit-scrollbar { display: none; }
+        #prayerMainMenu.hidden { opacity: 0; pointer-events: none; transform: scale(0.97); }
+
+        .menu-hero {
+            width: 100%; padding: 44px 40px 32px;
+            text-align: center;
+            background: radial-gradient(ellipse at 50% 0%, rgba(201,169,110,0.12) 0%, transparent 65%);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .menu-hero-eyebrow { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.4em; color: var(--gold); text-transform: uppercase; margin-bottom: 14px; opacity: 0.8; }
+        .menu-hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(34px, 4.5vw, 58px); font-weight: 300; font-style: italic; color: var(--text); line-height: 1.1; }
+        .menu-hero-title em { color: var(--gold2); font-style: italic; }
+        .menu-hero-sub { font-size: 13px; color: var(--text2); margin-top: 10px; font-weight: 300; letter-spacing: 0.02em; }
+        .menu-hero-divider { width: 60px; height: 1px; background: linear-gradient(to right, transparent, var(--gold), transparent); margin: 20px auto 0; }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            padding: 0;
+            flex: 1;
+        }
+
+        .menu-card {
+            padding: 36px 30px;
+            cursor: pointer;
+            transition: all 0.4s var(--ease);
+            display: flex; flex-direction: column; align-items: flex-start;
+            position: relative; overflow: hidden;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+        .menu-card:nth-child(3n) { border-right: none; }
+        .menu-card:nth-last-child(-n+3) { border-bottom: none; }
+
+        .menu-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 0% 0%, var(--card-color-dim) 0%, transparent 60%);
+            opacity: 0; transition: opacity 0.5s var(--ease);
+        }
+        .menu-card:hover::before { opacity: 1; }
+        .menu-card:hover { background: var(--surface2); }
+
+        .card-num { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.3em; color: var(--text3); margin-bottom: 22px; }
+
+        .card-icon-wrap {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px;
+            background: var(--card-color-dim);
+            border: 1px solid var(--card-color-border);
+            transition: all 0.4s var(--ease);
+            position: relative; z-index: 1;
+        }
+        .menu-card:hover .card-icon-wrap { transform: scale(1.08) translateY(-2px); box-shadow: 0 12px 32px var(--card-color-glow); }
+        .card-icon-wrap svg { width: 26px; height: 26px; }
+
+        .card-title { font-family: 'Cinzel', serif; font-size: 12px; font-weight: 600; letter-spacing: 0.12em; color: var(--text); margin-bottom: 10px; position: relative; z-index: 1; }
+        .card-desc { font-size: 12px; color: var(--text2); line-height: 1.7; font-weight: 300; position: relative; z-index: 1; }
+
+        .card-arrow {
+            margin-top: auto; padding-top: 22px;
+            width: 30px; height: 30px; border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text3); transition: all 0.4s var(--ease);
+            position: relative; z-index: 1;
+        }
+        .menu-card:hover .card-arrow { border-color: var(--card-color-main); color: var(--card-color-main); transform: translateX(4px); background: var(--card-color-dim); }
+
+        .card-rosary { --card-color-main: var(--blue2); --card-color-dim: var(--blue-dim); --card-color-glow: var(--blue-glow); --card-color-border: rgba(59,130,246,0.2); }
+        .card-dmc { --card-color-main: var(--red2); --card-color-dim: var(--red-dim); --card-color-glow: var(--red-glow); --card-color-border: rgba(239,68,68,0.2); }
+        .card-stm { --card-color-main: var(--silver2); --card-color-dim: var(--silver-dim); --card-color-glow: var(--silver-glow); --card-color-border: rgba(161,161,170,0.2); }
+        .card-wotc { --card-color-main: var(--purple2); --card-color-dim: var(--purple-dim); --card-color-glow: var(--purple-glow); --card-color-border: rgba(139,92,246,0.2); }
+        .card-litany { --card-color-main: var(--emerald2); --card-color-dim: var(--emerald-dim); --card-color-glow: var(--emerald-glow); --card-color-border: rgba(16,185,129,0.2); }
+        .card-anima { --card-color-main: var(--crimson2); --card-color-dim: var(--crimson-dim); --card-color-glow: var(--crimson-glow); --card-color-border: rgba(225,29,72,0.2); }
+        .card-stpatrick { --card-color-main: var(--teal2); --card-color-dim: var(--teal-dim); --card-color-glow: var(--teal-glow); --card-color-border: rgba(13,148,136,0.2); }
+
+        /* ══════════════════════════════════════════════════ */
+        /*   INTERACTIVE VIEW                                 */
+        /* ══════════════════════════════════════════════════ */
+        #prayerInteractiveView {
+            position: absolute; inset: 0; z-index: 10;
+            display: flex; flex-direction: row;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.5s var(--ease);
+        }
+        #prayerInteractiveView.active { opacity: 1; pointer-events: auto; }
+
+        /* ── LEFT PANE: Rosary Diagram ── */
+        .pane-left {
+            width: 260px; flex-shrink: 0;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden;
+        }
+
+        .pane-left::before {
+            content: ''; position: absolute;
+            width: 200px; height: 200px; border-radius: 50%;
+            background: radial-gradient(circle, var(--accent-glow, var(--gold-glow)) 0%, transparent 70%);
+            opacity: 0.35; pointer-events: none;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+
+        #rosarySVGWrap {
+            position: relative; z-index: 2;
+            width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+
+        #rosarySVG {
+            overflow: visible;
+            display: block;
+        }
+
+        .r-bead { cursor: pointer; transition: all 0.35s var(--ease); }
+        .r-bead circle.bead-body, .r-bead polygon.bead-body, .r-bead ellipse.bead-body { transition: all 0.35s var(--ease); }
+        .r-bead:hover circle.bead-body, .r-bead:hover polygon.bead-body, .r-bead:hover ellipse.bead-body { filter: brightness(1.35); }
+        .r-bead.active circle.bead-body, .r-bead.active polygon.bead-body, .r-bead.active ellipse.bead-body { filter: brightness(1.5) drop-shadow(0 0 8px var(--accent-main, var(--gold))); }
+        .r-bead.completed circle.bead-body, .r-bead.completed polygon.bead-body, .r-bead.completed ellipse.bead-body { opacity: 0.28; }
+
+        .r-tooltip {
+            position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+            background: var(--surface2); border: 1px solid var(--border);
+            padding: 5px 12px; border-radius: 20px;
+            font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text2);
+            white-space: nowrap; pointer-events: none; z-index: 10;
+            transition: opacity 0.2s;
+        }
+
+        /* ── RIGHT PANE ── */
+        .pane-right {
+            flex: 1; display: flex; flex-direction: column;
+            background: var(--bg); min-width: 0;
+        }
+
+        .pr-header {
+            flex: 0 0 auto; height: 56px; padding: 0 32px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--surface); border-bottom: 1px solid var(--border);
+        }
+        .pr-title { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 0.25em; color: var(--gold); }
+        .day-select {
+            padding: 7px 30px 7px 14px;
+            background: var(--surface2); border: 1px solid var(--border);
+            border-radius: 20px; color: var(--text); font-family: 'DM Sans', sans-serif;
+            font-size: 12px; font-weight: 500; outline: none; cursor: pointer;
+            transition: all 0.3s var(--ease); appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239A8E82' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 10px center;
+        }
+        .day-select:hover, .day-select:focus { border-color: var(--gold); }
+
+        .pr-body {
+            flex: 1; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+
+        .pr-inner {
+            flex: 1; overflow: hidden;
+            display: grid;
+            grid-template-columns: 1fr 1.35fr;
+            gap: 0;
+        }
+        .pr-inner.no-image-layout { grid-template-columns: 1fr; }
+
+        .pr-image-pane {
+            border-right: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px; overflow: hidden;
+            background: var(--surface);
+        }
+        .pr-image-pane img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+            display: none;
+            transition: opacity 0.4s var(--ease);
+        }
+        .pr-image-pane.has-image img { display: block; }
+        .pr-image-pane.no-image { display: none; }
+        .pr-inner.no-image-layout .pr-image-pane { display: none; }
+
+        .pr-text-pane {
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 28px 36px;
+            overflow-y: auto;
+        }
+        .pr-text-pane::-webkit-scrollbar { width: 3px; }
+        .pr-text-pane::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        .prayer-fade { transition: opacity 0.25s var(--ease); }
+        .prayer-fade.fading { opacity: 0; }
+
+        .prayer-text-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(24px, 3vh, 40px);
+            font-weight: 600; font-style: italic;
+            color: var(--text); line-height: 1.15;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+        }
+        .prayer-text-title::after {
+            content: ''; position: absolute; bottom: -1px; left: 0;
+            width: 44px; height: 1px;
+            background: var(--accent-main, var(--gold));
+        }
+        .prayer-text-content {
+            font-size: clamp(13px, 1.6vh, 17px);
+            line-height: 1.85; color: var(--text2);
+            white-space: pre-wrap; font-weight: 300;
+        }
+
+        /* ── Footer ── */
+        .pr-footer {
+            flex: 0 0 auto; height: 68px; padding: 0 32px;
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--surface); border-top: 1px solid var(--border);
+        }
+
+        .bead-counter { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 0.15em; color: var(--text3); }
+
+        .next-btn {
+            height: 44px; padding: 0 36px;
+            background: var(--accent-main, var(--gold));
+            color: #000; border: none; border-radius: 22px;
+            font-family: 'Cinzel', serif; font-size: 10px; font-weight: 600;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            cursor: pointer; transition: all 0.35s var(--ease);
+            display: flex; align-items: center; gap: 10px; outline: none;
+            box-shadow: 0 8px 24px var(--accent-glow, var(--gold-glow));
+        }
+        .next-btn:hover { transform: translateY(-2px); filter: brightness(1.12); box-shadow: 0 12px 32px var(--accent-glow, var(--gold-glow)); }
+        .next-btn:active { transform: translateY(0); }
+        .next-btn svg { width: 14px; height: 14px; transition: transform 0.3s var(--ease); }
+        .next-btn:hover svg { transform: translateX(3px); }
+
+        /* ══════════════════════════════════════════════════ */
+        /*  TABLET (769px–1024px) — Side-by-side, compact    */
+        /* ══════════════════════════════════════════════════ */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            #prayerTopBar { height: 54px; padding: 0 18px; }
+            .prayer-title { font-size: 20px; }
+
+            .pane-left { width: 240px; }
+
+            .pr-header { height: 50px; padding: 0 20px; }
+            .pr-title { font-size: 10px; }
+
+            .pr-text-pane { padding: 22px 24px; }
+            .prayer-text-title { font-size: clamp(22px, 2.8vh, 32px); }
+            .prayer-text-content { font-size: clamp(12px, 1.5vh, 15px); }
+
+            .pr-footer { height: 62px; padding: 0 20px; }
+            .next-btn { height: 42px; font-size: 10px; }
+        }
+
+        /* ══════════════════════════════════════════════════ */
+        /*  MOBILE (≤768px) — Vertical stack                 */
+        /* ══════════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+            #prayerTopBar { height: 50px; padding: 0 14px; }
+            .prayer-title { font-size: 17px; }
+
+            #prayerInteractiveView { flex-direction: column; }
+
+            /* Rosary pane: fixed height, full width, no overflow */
+            .pane-left {
+                width: 100%;
+                /* Dynamic height: use dvh to be safe on mobile. Enough for the rosary shape */
+                height: 220px;
+                flex-shrink: 0;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                background: var(--surface);
+            }
+
+            /* Right pane fills rest */
+            .pane-right {
+                flex: 1;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+            }
+
+            .pr-header {
+                height: 44px;
+                padding: 0 12px;
+                flex-shrink: 0;
+            }
+            .pr-title { font-size: 9px; letter-spacing: 0.18em; }
+
+            .pr-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
+
+            /* On mobile: image on top, text below — both visible without layout scroll */
+            .pr-inner {
+                flex: 1;
+                display: flex !important;
+                flex-direction: column;
+                grid-template-columns: unset !important;
+                overflow: hidden;
+                min-height: 0;
+            }
+
+            .pr-image-pane {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 10px 14px;
+                height: 130px;
+                flex-shrink: 0;
+                background: var(--surface);
+                display: flex;
+            }
+            .pr-image-pane.no-image { display: none; }
+            .pr-image-pane img {
+                width: 100%; height: 100%;
+                max-height: 110px;
+                object-fit: cover;
+                border-radius: 8px;
+            }
+
+            .pr-text-pane {
+                flex: 1;
+                padding: 14px 16px 10px;
+                align-items: center;
+                text-align: center;
+                overflow-y: auto;
+                justify-content: flex-start;
+                min-height: 0;
+            }
+            .prayer-text-title {
+                font-size: clamp(18px, 4vw, 24px);
+                text-align: center;
+                margin-bottom: 10px;
+                padding-bottom: 10px;
+            }
+            .prayer-text-title::after { left: 50%; transform: translateX(-50%); }
+            .prayer-text-content {
+                text-align: center;
+                font-size: clamp(12px, 3vw, 14px);
+                line-height: 1.7;
+            }
+
+            .pr-footer {
+                height: 58px;
+                padding: 0 12px;
+                flex-shrink: 0;
+            }
+            .next-btn {
+                flex: 1;
+                justify-content: center;
+                height: 40px;
+                font-size: 10px;
+                padding: 0 20px;
+            }
+            .bead-counter { display: none; }
+        }
+
+        /* Extra small phones */
+        @media (max-width: 380px) {
+            .pane-left { height: 190px; }
+            .pr-image-pane { height: 110px; }
+            .pr-image-pane img { max-height: 90px; }
+        }
+
+        /* ── Menu responsive ── */
+        @media (max-width: 980px) {
+            .menu-grid { grid-template-columns: repeat(2, 1fr); }
+            .menu-card:nth-child(3n) { border-right: 1px solid var(--border); }
+            .menu-card:nth-child(2n) { border-right: none; }
+            .menu-card:nth-last-child(-n+2) { border-bottom: none; }
+            .menu-card:nth-last-child(1):nth-child(odd) { border-bottom: none; }
+            .menu-hero { padding: 32px 22px 24px; }
+        }
+        @media (max-width: 540px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .menu-card { border-right: none !important; }
+            .menu-card:nth-last-child(-n+1) { border-bottom: none; }
+            .menu-hero { padding: 24px 18px 18px; }
+            .menu-card { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+<script>
+    const d = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.body.setAttribute('data-theme', d ? 'dark' : 'light');
+</script>
+
+<div id="prayerApp">
+    <header id="prayerTopBar">
+        <button class="icon-btn" onclick="goBack()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </button>
+        <div class="prayer-title">Prayer Book</div>
+        <button class="icon-btn" onclick="toggleTheme()" style="position:relative;">
+            <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+    </header>
+
+    <div id="prayerContent">
+        <!-- MAIN MENU -->
+        <div id="prayerMainMenu">
+            <div class="menu-hero">
+                <div class="menu-hero-eyebrow">Chosen Generations</div>
+                <div class="menu-hero-title">A <em>Sacred</em> Prayer Book</div>
+                <div class="menu-hero-sub">Choose a devotion to begin your prayer</div>
+                <div class="menu-hero-divider"></div>
+            </div>
+
+            <div class="menu-grid">
+                <!-- 01 Holy Rosary -->
+                <div class="menu-card card-rosary" onclick="loadPrayer('rosary')">
+                    <div class="card-num">01</div>
+                    <div class="card-icon-wrap">
+                        <svg viewBox="0 0 28 28" fill="none" stroke="var(--blue2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="14" cy="14" r="10" stroke-dasharray="3 3"/>
+                            <circle cx="14" cy="4" r="2" fill="var(--blue2)"/>
+                            <circle cx="22.7" cy="8.5" r="1.5" fill="var(--blue2)"/>
+                            <circle cx="22.7" cy="19.5" r="1.5" fill="var(--blue2)"/>
+                            <circle cx="14" cy="24" r="2" fill="var(--blue2)"/>
+                            <circle cx="5.3" cy="19.5" r="1.5" fill="var(--blue2)"/>
+                            <circle cx="5.3" cy="8.5" r="1.5" fill="var(--blue2)"/>
+                            <circle cx="14" cy="14" r="2.5" fill="var(--blue-dim)" stroke="var(--blue)"/>
+                        </svg>
+                    </div>
+                    <div class="card-title">Holy Rosary</div>
+                    <div class="card-desc">Meditate on the Joyful, Sorrowful, Glorious, and Luminous Mysteries.</div>
+                    <div class="card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9 3 14 8 9 13"/></svg></div>
+                </div>
+
+                <!-- 02 Divine Mercy -->
+                <div class="menu-card card-dmc" onclick="loadPrayer('dmc')">
+                    <div class="card-num">02</div>
+                    <div class="card-icon-wrap">
+                        <svg viewBox="0 0 28 28" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 23 C14 23 4 16 4 10 A5 5 0 0 1 14 8 A5 5 0 0 1 24 10 C24 16 14 23 14 23Z" fill="var(--red-dim)" stroke="var(--red2)" stroke-width="1.2"/>
+                            <path d="M9 9 Q11 7 13 9 Q15 7 17 9 Q19 7 19.5 9" stroke="var(--gold2)" stroke-width="1" fill="none"/>
+                            <line x1="14" y1="4" x2="14" y2="7.5" stroke="var(--gold2)" stroke-width="1.3"/>
+                            <line x1="12" y1="5.5" x2="16" y2="5.5" stroke="var(--gold2)" stroke-width="1.3"/>
+                            <line x1="11" y1="23" x2="9" y2="27" stroke="var(--red2)" stroke-width="1.2"/>
+                            <line x1="17" y1="23" x2="19" y2="27" stroke="#93C5FD" stroke-width="1.2"/>
+                            <path d="M13 11 Q14 9.5 15 11 Q15.5 12.5 14 13 Q12.5 12.5 13 11Z" fill="var(--red2)" stroke="none" opacity="0.8"/>
+                        </svg>
+                    </div>
+                    <div class="card-title">Divine Mercy</div>
+                    <div class="card-desc">For the sake of His sorrowful passion, have mercy on us and on the whole world.</div>
+                    <div class="card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9 3 14 8 9 13"/></svg></div>
+                </div>
+
+                <!-- 03 St. Michael -->
+                <div class="menu-card card-stm" onclick="loadPrayer('stmichael')">
+                    <div class="card-num">03</div>
+                    <div class="card-icon-wrap">
+                        <svg viewBox="0 0 28 28" fill="none" stroke="var(--silver2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 4 L14 24"/>
+                            <path d="M11 10 L17 10"/>
+                            <path d="M9 12 C4 10 2 16 4 20 C7 16 10 18 12 16"/>
+                            <path d="M19 12 C24 10 26 16 24 20 C21 16 18 18 16 16"/>
+                            <path d="M11 22 L17 22 L14 26 Z" fill="var(--silver-dim)"/>
+                        </svg>
+                    </div>
+                    <div class="card-title">St. Michael</div>
+                    <div class="card-desc">Honor the 9 Choirs of Angels and seek the protection of the Archangel.</div>
+                    <div class="card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9 3 14 8 9 13"/></svg></div>
+                </div>
+
+                <!-- 04 Way of the Cross -->
+                <div class="menu-card card-wotc" onclick="loadPrayer('wotc')">
+                    <div class="card-num">04</div>
+                    <div class="card-icon-wrap">
+                        <svg viewBox="0 0 28 28" fill="none" stroke="var(--purple2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10 5 L10 23 M7 9 L13 9" stroke-width="2"/>
+                            <path d="M18 10 L18 23 M15 13 L21 13" stroke-width="1.5"/>
+                            <path d="M4 23 Q14 18 24 23"/>
+                        </svg>
+                    </div>
+                    <div class="card-title">Way of the Cross</div>
+                    <div class="card-desc">Walk the 14 stations of the Passion, meditating on Christ's ultimate sacrifice.</div>
+                    <div class="card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9 3 14 8 9 13"/></svg></div>
+                </div>
+
+                <!-- 05 Litany of Saints -->
+                <div class="menu-card card-litany" onclick="loadPrayer('litany')">
+                    <div class="card-num">05</div>
+                    <div class="card-icon-wrap">
+                        <svg viewBox="0 0 28 28" fill="none" stroke="var(--emerald2)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="7" cy="9" r="2.5" fill="var(--emerald-dim)" stroke="var(--emerald2)" stroke-width="1.1"/>
+                            <path d="M4 22 C4 17 10 17 10 22"/>
+                            <path d="M5.5 7 A1.5 1.5 0 0 1 8.5 7" stroke="var(--gold2)" stroke-width="0.9" fill="none"/>
+                            <circle cx="14" cy="8" r="3" fill="var(--emerald-dim)" stroke="var(--emerald2)" stroke-width="1.2"/>
+                            <path d="M10 22 C10 15.5 18 15.5 18 22"/>
+                            <path d="M12 5.8 A2 2 0 0 1 16 5.8" stroke="var(--gold2)" stroke-width="1" fill="none"/>
+                            <circle cx="21" cy="9" r="2.5" fill="var(--emerald-dim)" stroke="var(--emerald2)" stroke-width="1.1"/>
+                            <path d="M18 22 C18 17 24 17 24 22"/>
+                            <path d="M19.5 7 A1.5 1.5 0 0 1 22.5 7" stroke="var(--gold2)" stroke-width="0.9" fill="none"/>
+                            <line x1="3" y1="22" x2="25" y2="22" stroke-width="1"/>
+                        </svg>
+                    </div>
+                    <div class="card-title">Litany of Saints</div>
+                    <div class="card-desc">Invoke the intercession of the Patriarchs, Apostles, Martyrs, and all Saints.</div>
+                    <div class="card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9 3 14 8 9 13"/></svg></div>
+                </div>
+
+                <!-- 06 Anima Christi -->
+                <div class="menu-card card-anima" onclick="loadPrayer('anima')">
+                    <div class="card-num">06</div>
+                    <div class="card-icon-wrap">
+                        <svg viewBox="0 0 28 28" fill="none" stroke="var(--crimson2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="14" cy="9" r="4" fill="var(--crimson-dim)"/>
+                            <path d="M11 9 H17 M14 6 V12" stroke-width="1"/>
+                            <path d="M8 16 L11 22 H17 L20 16 Z" fill="var(--crimson-dim)"/>
+                            <path d="M14 22 V25 M11 26 H17"/>
+                        </svg>
+                    </div>
+                    <div class="card-title">Anima Christi</div>
+                    <div class="card-desc">"Soul of Christ, sanctify me." A profound Eucharistic meditation and prayer.</div>
+                    <div class="card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9 3 14 8 9 13"/></svg></div>
+                </div>
+
+                <!-- 07 St. Patrick's Prayer -->
+                <div class="menu-card card-stpatrick" onclick="loadPrayer('stpatrick')">
+                    <div class="card-num">07</div>
+                    <div class="card-icon-wrap">
+                        <svg viewBox="0 0 28 28" fill="none" stroke="var(--teal2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="14" y1="3" x2="14" y2="25"/>
+                            <line x1="6" y1="11" x2="22" y2="11"/>
+                            <circle cx="14" cy="11" r="5.5" fill="none" stroke="var(--teal2)" stroke-width="1.2"/>
+                            <circle cx="14" cy="3.5" r="1.4" fill="var(--teal-dim)" stroke="var(--teal2)" stroke-width="0.9"/>
+                            <line x1="14" y1="4.9" x2="14" y2="6" stroke="var(--teal2)" stroke-width="0.9"/>
+                        </svg>
+                    </div>
+                    <div class="card-title">St. Patrick's Prayer</div>
+                    <div class="card-desc">The Breastplate of St. Patrick — a shield of faith invoking the Holy Trinity.</div>
+                    <div class="card-arrow"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="12" height="12"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9 3 14 8 9 13"/></svg></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- INTERACTIVE VIEW -->
+        <div id="prayerInteractiveView">
+            <div class="pane-left" id="rosaryContainer">
+                <div id="rosarySVGWrap">
+                    <svg id="rosarySVG" xmlns="http://www.w3.org/2000/svg"></svg>
+                </div>
+                <div class="r-tooltip" id="rTooltip" style="opacity:0;"></div>
+            </div>
+
+            <div class="pane-right">
+                <div class="pr-header">
+                    <div class="pr-title" id="prTypeTitle">Holy Rosary</div>
+                    <div id="prayerControls"></div>
+                </div>
+
+                <div class="pr-body" id="prBodyWrap">
+                    <div class="pr-inner" id="prInnerGrid">
+                        <div class="pr-image-pane no-image" id="prImagePane">
+                            <img id="prImage" src="" alt="">
+                        </div>
+                        <div class="pr-text-pane prayer-fade" id="prTextPane">
+                            <div class="prayer-text-title" id="ptdTitle">Select a bead to begin</div>
+                            <div class="prayer-text-content" id="ptdBody">May your prayer be blessed.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pr-footer">
+                    <div class="bead-counter" id="beadCounter">—</div>
+                    <button class="next-btn" id="nextBtn" onclick="nextBead()">
+                        Next <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── Theme ──────────────────────────────────────────────
+function toggleTheme() {
+    const t = document.body.getAttribute('data-theme');
+    document.body.setAttribute('data-theme', t === 'dark' ? 'light' : 'dark');
+}
+function goBack() {
+    const iv = document.getElementById('prayerInteractiveView');
+    if (iv.classList.contains('active')) {
+        iv.classList.remove('active');
+        setTimeout(() => document.getElementById('prayerMainMenu').classList.remove('hidden'), 300);
+    } else {
+        window.location.href = 'index.html';
+    }
+}
+
+// ── Prayer Data ────────────────────────────────────────
+const CORE = {
+    "Sign of Cross": "In the name of the Father, and of the Son, and of the Holy Spirit. Amen.",
+    "Apostles Creed": "I believe in God, the Father Almighty, Creator of Heaven and earth; and in Jesus Christ, His only Son, Our Lord, Who was conceived by the Holy Spirit, born of the Virgin Mary, suffered under Pontius Pilate, was crucified, died, and was buried. He descended into hell; on the third day He arose again from the dead; He ascended into Heaven, and is seated at the right hand of God, the Father Almighty; from thence He shall come to judge the living and the dead.\n\nI believe in the Holy Spirit, the holy Catholic Church, the communion of saints, the forgiveness of sins, the resurrection of the body, and life everlasting. Amen.",
+    "Our Father": "Our Father, Who art in heaven, hallowed be Thy name; Thy kingdom come; Thy will be done on earth as it is in heaven.\n\nGive us this day our daily bread; and forgive us our trespasses as we forgive those who trespass against us; and lead us not into temptation, but deliver us from evil. Amen.",
+    "Hail Mary": "Hail Mary, full of grace. The Lord is with thee. Blessed art thou amongst women, and blessed is the fruit of thy womb, Jesus.\n\nHoly Mary, Mother of God, pray for us sinners, now and at the hour of our death. Amen.",
+    "Glory Be": "Glory be to the Father, and to the Son, and to the Holy Spirit.\n\nAs it was in the beginning, is now, and ever shall be, world without end. Amen.",
+    "Fatima Prayer": "O my Jesus, forgive us our sins, save us from the fires of hell, and lead all souls to Heaven, especially those in most need of Thy mercy.",
+    "Hail Holy Queen": "Hail, Holy Queen, Mother of Mercy, our life, our sweetness and our hope.\nTo thee do we cry, poor banished children of Eve: to thee do we send up our sighs, mourning and weeping in this valley of tears. Turn then, most gracious Advocate, thine eyes of mercy toward us, and after this our exile, show unto us the blessed fruit of thy womb, Jesus.\nO clement, O loving, O sweet Virgin Mary!",
+    "Rosary Closing": "Pray for us, O Holy Mother of God. That we may be made worthy of the promises of Christ.\n\nO God, whose only begotten Son, by His life, death, and resurrection, has purchased for us the rewards of eternal life, grant we beseech Thee, that meditating upon these mysteries of the Most Holy Rosary of the Blessed Virgin Mary, we may imitate what they contain and obtain what they promise, through the same Christ Our Lord. Amen."
+};
+
+const MYSTERIES = {
+    Joyful: [
+        { title: "1st Mystery — The Annunciation", img: "images/annunciation.jpg" },
+        { title: "2nd Mystery — The Visitation", img: "images/visitation.jpg" },
+        { title: "3rd Mystery — The Nativity", img: "images/nativity.jpg" },
+        { title: "4th Mystery — The Presentation", img: "images/presentation.jpg" },
+        { title: "5th Mystery — Finding in the Temple", img: "images/finding_temple.jpg" }
+    ],
+    Sorrowful: [
+        { title: "1st Mystery — Agony in the Garden", img: "images/agony_garden.jpg" },
+        { title: "2nd Mystery — Scourging at the Pillar", img: "images/scourging.jpg" },
+        { title: "3rd Mystery — Crowning with Thorns", img: "images/crowning_thorns.jpg" },
+        { title: "4th Mystery — Carrying of the Cross", img: "images/carrying_cross.jpg" },
+        { title: "5th Mystery — The Crucifixion", img: "images/crucifixion.jpg" }
+    ],
+    Glorious: [
+        { title: "1st Mystery — The Resurrection", img: "images/resurrection.jpg" },
+        { title: "2nd Mystery — The Ascension", img: "images/ascension.jpg" },
+        { title: "3rd Mystery — Descent of the Holy Spirit", img: "images/pentecost.jpg" },
+        { title: "4th Mystery — The Assumption", img: "images/assumption.jpg" },
+        { title: "5th Mystery — Coronation of Mary", img: "images/coronation.jpg" }
+    ],
+    Luminous: [
+        { title: "1st Mystery — Baptism in the Jordan", img: "images/baptism.jpg" },
+        { title: "2nd Mystery — Wedding at Cana", img: "images/wedding_cana.jpg" },
+        { title: "3rd Mystery — Proclamation of Kingdom", img: "images/proclamation.jpg" },
+        { title: "4th Mystery — The Transfiguration", img: "images/transfiguration.jpg" },
+        { title: "5th Mystery — Institution of Eucharist", img: "images/eucharist.jpg" }
+    ]
+};
+
+const SCHEDULE = ["Glorious", "Joyful", "Sorrowful", "Glorious", "Luminous", "Sorrowful", "Joyful"];
+
+const DMC = {
+    "Eternal Father": "Eternal Father, I offer you the Body and Blood, Soul and Divinity of Your Dearly Beloved Son, Our Lord, Jesus Christ, in atonement for our sins and those of the whole world.",
+    "For the Sake": "For the sake of His sorrowful Passion, have mercy on us and on the whole world.",
+    "Holy God": "Holy God, Holy Mighty One, Holy Immortal One, have mercy on us and on the whole world.",
+    "Closing": "Eternal God, in whom mercy is endless and the treasury of compassion inexhaustible, look kindly upon us and increase Your mercy in us, that in difficult moments we might not despair nor become despondent, but with great confidence submit ourselves to Your holy will, which is Love and Mercy itself. Amen."
+};
+
+const STM_SALUTATIONS = [
+    "By the intercession of St. Michael and the celestial Choir of Seraphim may the Lord make us worthy to burn with the fire of perfect charity. Amen.",
+    "By the intercession of St. Michael and the celestial Choir of Cherubim may the Lord grant us the grace to leave the ways of sin and run in the paths of Christian perfection. Amen.",
+    "By the intercession of St. Michael and the celestial Choir of Thrones may the Lord infuse into our hearts a true and sincere spirit of humility. Amen.",
+    "By the intercession of St. Michael and the celestial Choir of Dominations may the Lord give us grace to govern our senses and overcome any unruly passions. Amen.",
+    "By the intercession of St. Michael and the celestial Choir of Virtues may the Lord preserve us from evil and falling into temptation. Amen.",
+    "By the intercession of St. Michael and the celestial Choir of Powers may the Lord protect our souls against the snares and temptations of the devil. Amen.",
+    "By the intercession of St. Michael and the celestial Choir of Principalities may God fill our souls with a true spirit of obedience. Amen.",
+    "By the intercession of St. Michael and the celestial Choir of Archangels may the Lord give us perseverance in faith and in all good works in order that we may attain the glory of Heaven. Amen.",
+    "By the intercession of St. Michael and the celestial Choir of Angels may the Lord grant us to be protected by them in this mortal life and conducted in the life to come to Heaven. Amen."
+];
+
+const WOTC_STATIONS = [
+    "Jesus is condemned to death","Jesus takes up His Cross","Jesus falls the first time","Jesus meets His sorrowful Mother",
+    "Simon helps carry the Cross","Veronica wipes His face","Jesus falls the second time","Jesus meets the women of Jerusalem",
+    "Jesus falls the third time","Jesus is stripped of His garments","Jesus is nailed to the Cross","Jesus dies on the Cross",
+    "Jesus is taken down from the Cross","Jesus is laid in the tomb"
+];
+
+const LITANY_SECTIONS = [
+    { title: "Supplication", text: "Lord, have mercy on us.\nChrist, have mercy on us.\nLord, have mercy on us.\nChrist, hear us.\nChrist, graciously hear us.\n\nGod the Father of heaven, have mercy on us.\nGod the Son, Redeemer of the world, have mercy on us.\nGod the Holy Spirit, have mercy on us.\nHoly Trinity, one God, have mercy on us." },
+    { title: "Mary & Angels", text: "Holy Mary, pray for us.\nHoly Mother of God, pray for us.\nHoly Virgin of virgins, pray for us.\nSt. Michael, pray for us.\nSt. Gabriel, pray for us.\nSt. Raphael, pray for us.\nAll you holy Angels and Archangels, pray for us." },
+    { title: "Patriarchs & Prophets", text: "St. John the Baptist, pray for us.\nSt. Joseph, pray for us.\nAll you holy Patriarchs and Prophets, pray for us." },
+    { title: "Apostles", text: "St. Peter, pray for us.\nSt. Paul, pray for us.\nSt. Andrew, pray for us.\nSt. John, pray for us.\nSt. Mary Magdalene, pray for us.\nAll you holy Apostles and Evangelists, pray for us." },
+    { title: "Martyrs", text: "St. Stephen, pray for us.\nSt. Lawrence, pray for us.\nSt. Agnes, pray for us.\nAll you holy Martyrs, pray for us." },
+    { title: "Doctors of the Church", text: "St. Gregory, pray for us.\nSt. Ambrose, pray for us.\nSt. Augustine, pray for us.\nSt. Jerome, pray for us.\nAll you holy Bishops and Confessors, pray for us." },
+    { title: "Religious", text: "St. Anthony, pray for us.\nSt. Benedict, pray for us.\nSt. Dominic, pray for us.\nSt. Francis, pray for us.\nAll you holy Priests and Levites, pray for us." },
+    { title: "All Saints", text: "St. Anne, pray for us.\nSt. Monica, pray for us.\nSt. Cecilia, pray for us.\nAll you holy men and women, Saints of God, make intercession for us." },
+    { title: "Deliverance", text: "Be merciful, spare us, O Lord.\nBe merciful, graciously hear us, O Lord.\n\nFrom all evil, deliver us, O Lord.\nFrom all sin, deliver us, O Lord.\nFrom Your wrath, deliver us, O Lord.\nFrom a sudden and unprovided death, deliver us, O Lord.\nBy the mystery of Your holy Incarnation, deliver us, O Lord.\nBy Your Cross and Passion, deliver us, O Lord." },
+    { title: "Agnus Dei", text: "Lamb of God, who takes away the sins of the world, spare us, O Lord.\nLamb of God, who takes away the sins of the world, graciously hear us, O Lord.\nLamb of God, who takes away the sins of the world, have mercy on us." }
+];
+
+const ANIMA_SECTIONS = [
+    { title: "Sanctify Me", text: "Soul of Christ, sanctify me.\nBody of Christ, save me.\nBlood of Christ, inebriate me.\nWater from the side of Christ, wash me." },
+    { title: "Hide Me in Thy Wounds", text: "Passion of Christ, strengthen me.\nO Good Jesus, hear me.\nWithin Thy wounds hide me." },
+    { title: "Defend Me", text: "Suffer me not to be separated from Thee.\nFrom the malignant enemy, defend me.\nAt the hour of my death, call me." },
+    { title: "With Thy Saints", text: "And bid me come unto Thee,\nThat with Thy Saints I may praise Thee,\nForever and ever. Amen." }
+];
+
+const STP_SECTIONS = [
+    { title: "I Arise Today", text: "I arise today\nThrough a mighty strength, the invocation of the Trinity,\nThrough belief in the Threeness,\nThrough confession of the Oneness\nOf the Creator of creation." },
+    { title: "Through Christ's Life", text: "I arise today\nThrough the strength of Christ's birth with His baptism,\nThrough the strength of His crucifixion with His burial,\nThrough the strength of His resurrection with His ascension,\nThrough the strength of His descent for the judgment of doom." },
+    { title: "Through the Angels", text: "I arise today\nThrough the strength of the love of cherubim,\nIn the obedience of angels,\nIn the service of archangels,\nIn hope of resurrection to meet with reward,\nIn prayers of patriarchs,\nIn predictions of prophets,\nIn preachings of apostles." },
+    { title: "God's Shield", text: "I arise today, through\nGod's strength to pilot me,\nGod's might to uphold me,\nGod's wisdom to guide me,\nGod's eye to look before me,\nGod's ear to hear me,\nGod's word to speak for me,\nGod's hand to guard me,\nGod's shield to protect me." },
+    { title: "Christ Be With Me", text: "Christ with me,\nChrist before me,\nChrist behind me,\nChrist in me,\nChrist beneath me,\nChrist above me,\nChrist on my right,\nChrist on my left,\nChrist when I lie down,\nChrist when I sit down,\nChrist when I arise." },
+    { title: "Christ In All Things", text: "Christ in the heart of every man who thinks of me,\nChrist in the mouth of everyone who speaks of me,\nChrist in every eye that sees me,\nChrist in every ear that hears me.\n\nI arise today\nThrough a mighty strength, the invocation of the Trinity,\nThrough belief in the Threeness,\nThrough confession of the Oneness\nOf the Creator of creation.\n\nSalvation is of the Lord.\nSalvation is of the Lord.\nSalvation is of Christ.\nMay Thy salvation, O Lord, be ever with us. Amen." }
+];
+
+// ── State ──────────────────────────────────────────────
+let activePrayerType = null;
+let selectedDayIndex = new Date().getDay();
+let beadArray = [];
+let currentBeadIndex = -1;
+let accentConfig = {};
+
+// ── SVG Namespace ─────────────────────────────────────
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+// Bead radii
+const SR = 4.2;   // small bead radius
+const LR = 6.0;   // large (Our Father) bead radius
+const MR = 7.0;   // medal radius
+const CW = 8;     // cross width
+const CH = 11;    // cross height
+
+function lighten(hex) {
+    try {
+        let n = parseInt(hex.replace('#',''), 16);
+        return `rgb(${Math.min(255,((n>>16)&0xff)+55)},${Math.min(255,((n>>8)&0xff)+55)},${Math.min(255,(n&0xff)+55)})`;
+    } catch(e) { return hex; }
+}
+function darken(hex) {
+    try {
+        let n = parseInt(hex.replace('#',''), 16);
+        return `rgb(${Math.max(0,((n>>16)&0xff)-35)},${Math.max(0,((n>>8)&0xff)-35)},${Math.max(0,(n&0xff)-35)})`;
+    } catch(e) { return hex; }
+}
+
+function ensureGoldGrad(defs) {
+    if (defs.querySelector('#goldGrad')) return;
+    const gg = document.createElementNS(SVG_NS,'linearGradient');
+    gg.setAttribute('id','goldGrad'); gg.setAttribute('x1','0%'); gg.setAttribute('y1','0%');
+    gg.setAttribute('x2','100%'); gg.setAttribute('y2','100%');
+    const s1=document.createElementNS(SVG_NS,'stop'); s1.setAttribute('offset','0%'); s1.setAttribute('stop-color','#F5DCA0');
+    const s2=document.createElementNS(SVG_NS,'stop'); s2.setAttribute('offset','100%'); s2.setAttribute('stop-color','#7A4E10');
+    gg.appendChild(s1); gg.appendChild(s2); defs.appendChild(gg);
+}
+
+function createBeadElem(cx, cy, r, color, defs) {
+    const gid = 'bg' + Math.random().toString(36).slice(2,8);
+    const grad = document.createElementNS(SVG_NS,'radialGradient');
+    grad.setAttribute('id',gid); grad.setAttribute('cx','35%'); grad.setAttribute('cy','30%'); grad.setAttribute('r','65%');
+    const s1=document.createElementNS(SVG_NS,'stop'); s1.setAttribute('offset','0%'); s1.setAttribute('stop-color',lighten(color));
+    const s2=document.createElementNS(SVG_NS,'stop'); s2.setAttribute('offset','100%'); s2.setAttribute('stop-color',darken(color));
+    grad.appendChild(s1); grad.appendChild(s2); defs.appendChild(grad);
+    const c = document.createElementNS(SVG_NS,'circle');
+    c.setAttribute('cx',cx); c.setAttribute('cy',cy); c.setAttribute('r',r);
+    c.setAttribute('fill',`url(#${gid})`);
+    c.setAttribute('stroke','rgba(255,255,255,0.15)'); c.setAttribute('stroke-width','0.6');
+    c.classList.add('bead-body');
+    const h = document.createElementNS(SVG_NS,'ellipse');
+    h.setAttribute('cx',cx - r*0.18); h.setAttribute('cy',cy - r*0.2);
+    h.setAttribute('rx',r*0.3); h.setAttribute('ry',r*0.22);
+    h.setAttribute('fill','rgba(255,255,255,0.3)');
+    return [c, h];
+}
+
+// ─────────────────────────────────────────────────────
+//  ROSARY SHAPE RENDERER
+//  The rosary is shaped like a teardrop/loop with a tail:
+//
+//  Layout (from bead index 0 upward):
+//    TAIL (bottom → up):  cross, medal(join), then tail beads going up to circle
+//    CIRCLE: ring beads going counterclockwise from bottom-join up left side,
+//            across top, down right side back to bottom-join
+//    TAIL CLOSING: concluding beads below the cross
+//
+//  Visually:
+//    • Cross hangs at the very bottom
+//    • Tail beads go straight up from cross to the circle join point
+//    • Circle goes from join point counterclockwise (up-left) for the 5 decades
+//    • Medal beads on the circle mark each decade
+//
+// ─────────────────────────────────────────────────────
+
+function getContainerSize() {
+    const container = document.getElementById('rosaryContainer');
+    return { w: container.offsetWidth, h: container.offsetHeight };
+}
+
+// Compute rosary geometry based on available space
+function computeGeometry() {
+    const { w, h } = getContainerSize();
+    // Padding from edges
+    const padX = 16, padY = 14;
+    const availW = w - padX * 2;
+    const availH = h - padY * 2;
+
+    const tailBeads = beadArray.filter(b => b.onTail);
+    const ringBeads = beadArray.filter(b => !b.onTail);
+    const nRing = ringBeads.length;
+    const nTail = tailBeads.length;
+
+    // Tail spacing: vertical distance between tail beads
+    const tailSpacing = Math.min(16, Math.max(10, (availH * 0.38) / Math.max(nTail, 1)));
+
+    // Total tail height needed (from cross at bottom to join point)
+    const tailH = nTail * tailSpacing + tailSpacing;
+
+    // Circle radius: use remaining height above tail
+    const circleAvailH = availH - tailH - MR * 2;
+    const circleR = Math.max(30, Math.min(
+        availW / 2 - LR - 4,   // fit within width
+        circleAvailH / 2 - LR  // fit in remaining height
+    ));
+
+    // Center X is middle of container; circle sits above tail
+    const cx = w / 2;
+    // Join point: bottom of the circle (where tail meets ring)
+    // Place circle center so circle top stays within bounds
+    const circleTopY = padY + circleR + LR;
+    const circleCY = circleTopY + circleR;
+    const joinY = circleCY + circleR;  // bottom of circle
+
+    return { cx, circleCY, circleR, joinY, tailSpacing, w, h };
+}
+
+function getCirclePos(angleDeg, r, cx, cy) {
+    const rad = (angleDeg - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function renderRosarySVG() {
+    const svg = document.getElementById('rosarySVG');
+    svg.innerHTML = '';
+    const defs = document.createElementNS(SVG_NS, 'defs');
+    svg.appendChild(defs);
+    ensureGoldGrad(defs);
+
+    if (beadArray.length === 0) return;
+
+    const { cx, circleCY, circleR, joinY, tailSpacing, w, h } = computeGeometry();
+
+    svg.setAttribute('width', w);
+    svg.setAttribute('height', h);
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+
+    const ringBeads = beadArray.filter(b => !b.onTail);
+    const tailBeads = beadArray.filter(b => b.onTail);
+    const nRing = ringBeads.length;
+
+    // ── Assign positions ──
+    // TAIL BEADS: placed from bottom upward
+    // tailBeads[0] = cross (lowest), tailBeads[last-1] = medal/last-before-circle
+    // The topmost tail bead connects to the bottom of the circle (joinY)
+    // We want the last tail bead (closest to circle) at joinY - some offset,
+    // and cross at the bottom.
+    const tailTopY = joinY - tailSpacing * 0.5;
+    tailBeads.forEach((b, i) => {
+        // i=0 is first in array = cross (bottom), last = closest to circle
+        const idx = tailBeads.length - 1 - i;
+        b.svgX = cx;
+        b.svgY = tailTopY + i * tailSpacing;
+    });
+
+    // Cross position: last tail bead (cross is beadArray[0])
+    // Actually cross = tailBeads[0] in our build order. Let's recalc:
+    // tailBeads[0] = cross at bottom, tailBeads[last] = closest to circle at top
+    // So reverse: place tailBeads[0] at max Y, tailBeads[last] at joinY
+    const crossY = h - 16;
+    const tailTotalH = crossY - joinY;
+    tailBeads.forEach((b, i) => {
+        // i=0 → cross at bottom (crossY), i=last → near joinY
+        const t = tailBeads.length > 1 ? i / (tailBeads.length - 1) : 0;
+        b.svgX = cx;
+        b.svgY = crossY - t * (crossY - joinY - 8);
+    });
+
+    // RING BEADS: distributed evenly around the circle
+    // Start at the bottom (joinY = 270° = 180° offset from top)
+    // Go counterclockwise (decreasing angle = going left first)
+    // Join at bottom = angle 90° from our convention (top = -90°, bottom = 90°)
+    // We want bead 0 of ring to start just past join going counterclockwise (left side up)
+    const ringStartAngle = 90; // bottom of circle
+    ringBeads.forEach((b, i) => {
+        // Counterclockwise: subtract angle
+        // Full circle minus a small gap at the join point
+        const fraction = i / nRing;
+        const angle = ringStartAngle - fraction * 360;
+        const pos = getCirclePos(angle, circleR, cx, circleCY);
+        b.svgX = pos.x;
+        b.svgY = pos.y;
+    });
+
+    // ── Draw chain lines ──
+    // Circle chain
+    const circleChain = document.createElementNS(SVG_NS, 'circle');
+    circleChain.setAttribute('cx', cx);
+    circleChain.setAttribute('cy', circleCY);
+    circleChain.setAttribute('r', circleR);
+    circleChain.setAttribute('fill', 'none');
+    circleChain.setAttribute('stroke', accentConfig.chainColor || 'rgba(120,100,80,0.45)');
+    circleChain.setAttribute('stroke-width', '1.2');
+    svg.appendChild(circleChain);
+
+    // Tail chain line (from join point down to cross)
+    const tailLine = document.createElementNS(SVG_NS, 'line');
+    tailLine.setAttribute('x1', cx); tailLine.setAttribute('y1', joinY);
+    tailLine.setAttribute('x2', cx); tailLine.setAttribute('y2', crossY + CH / 2);
+    tailLine.setAttribute('stroke', accentConfig.chainColor || 'rgba(120,100,80,0.45)');
+    tailLine.setAttribute('stroke-width', '1.2');
+    svg.appendChild(tailLine);
+
+    // ── Draw all beads ──
+    beadArray.forEach((bData, idx) => {
+        const g = document.createElementNS(SVG_NS, 'g');
+        g.classList.add('r-bead');
+        g.setAttribute('data-idx', idx);
+        const bx = bData.svgX, by = bData.svgY;
+
+        if (bData.type === 'cross') {
+            const cw = CW, ch = CH, arm = cw * 0.33;
+            const pts = [
+                `${bx-arm},${by-ch/2}`,
+                `${bx+arm},${by-ch/2}`,
+                `${bx+arm},${by-arm}`,
+                `${bx+cw/2},${by-arm}`,
+                `${bx+cw/2},${by+arm}`,
+                `${bx+arm},${by+arm}`,
+                `${bx+arm},${by+ch/2}`,
+                `${bx-arm},${by+ch/2}`,
+                `${bx-arm},${by+arm}`,
+                `${bx-cw/2},${by+arm}`,
+                `${bx-cw/2},${by-arm}`,
+                `${bx-arm},${by-arm}`
+            ].join(' ');
+            const cross = document.createElementNS(SVG_NS,'polygon');
+            cross.setAttribute('points', pts);
+            cross.setAttribute('fill', 'url(#goldGrad)');
+            cross.setAttribute('stroke', 'rgba(255,255,255,0.2)');
+            cross.setAttribute('stroke-width', '0.5');
+            cross.classList.add('bead-body');
+            g.appendChild(cross);
+        } else if (bData.type === 'medal') {
+            const me = document.createElementNS(SVG_NS,'ellipse');
+            me.setAttribute('cx', bx); me.setAttribute('cy', by);
+            me.setAttribute('rx', MR * 0.72); me.setAttribute('ry', MR);
+            me.setAttribute('fill', 'url(#goldGrad)');
+            me.setAttribute('stroke', accentConfig.main || '#C9A96E');
+            me.setAttribute('stroke-width', '0.8');
+            me.classList.add('bead-body');
+            g.appendChild(me);
+            const sh = document.createElementNS(SVG_NS,'ellipse');
+            sh.setAttribute('cx', bx - 1.5); sh.setAttribute('cy', by - 2.5);
+            sh.setAttribute('rx', '2'); sh.setAttribute('ry', '1.5');
+            sh.setAttribute('fill', 'rgba(255,255,255,0.28)');
+            g.appendChild(sh);
+        } else {
+            const r = bData.type === 'large' ? LR : SR;
+            const [circle, highlight] = createBeadElem(bx, by, r, accentConfig.color, defs);
+            g.appendChild(circle); g.appendChild(highlight);
+        }
+
+        g.addEventListener('click', () => activateBead(idx));
+        g.addEventListener('mouseenter', () => showTooltip(bData.shortLabel));
+        g.addEventListener('mouseleave', () => hideTooltip());
+        bData.svgEl = g;
+        svg.appendChild(g);
+    });
+}
+
+function showTooltip(text) {
+    const t = document.getElementById('rTooltip');
+    t.textContent = text; t.style.opacity = '1';
+}
+function hideTooltip() {
+    document.getElementById('rTooltip').style.opacity = '0';
+}
+
+// ── Accent ─────────────────────────────────────────────
+const ACCENTS = {
+    rosary:    { color: '#3B82F6', glow: 'rgba(59,130,246,0.6)',   main: '#60A5FA', chainColor: 'rgba(80,100,180,0.5)',  btnColor: '#3B82F6', btnText: '#fff' },
+    dmc:       { color: '#EF4444', glow: 'rgba(239,68,68,0.6)',    main: '#F87171', chainColor: 'rgba(180,60,60,0.5)',   btnColor: '#EF4444', btnText: '#fff' },
+    stmichael: { color: '#A1A1AA', glow: 'rgba(161,161,170,0.6)',  main: '#D4D4D8', chainColor: 'rgba(100,100,110,0.5)', btnColor: '#A1A1AA', btnText: '#000' },
+    wotc:      { color: '#8B5CF6', glow: 'rgba(139,92,246,0.6)',   main: '#A78BFA', chainColor: 'rgba(120,80,220,0.5)', btnColor: '#8B5CF6', btnText: '#fff' },
+    litany:    { color: '#10B981', glow: 'rgba(16,185,129,0.6)',   main: '#34D399', chainColor: 'rgba(20,140,100,0.5)', btnColor: '#10B981', btnText: '#fff' },
+    anima:     { color: '#E11D48', glow: 'rgba(225,29,72,0.6)',    main: '#FB7185', chainColor: 'rgba(200,30,60,0.5)',  btnColor: '#E11D48', btnText: '#fff' },
+    stpatrick: { color: '#0D9488', glow: 'rgba(13,148,136,0.6)',   main: '#2DD4BF', chainColor: 'rgba(10,100,90,0.5)',  btnColor: '#0D9488', btnText: '#fff' }
+};
+
+// ── Load Prayer ────────────────────────────────────────
+function loadPrayer(type) {
+    activePrayerType = type;
+    accentConfig = ACCENTS[type] || ACCENTS.rosary;
+
+    document.documentElement.style.setProperty('--accent-main', accentConfig.main);
+    document.documentElement.style.setProperty('--accent-glow', accentConfig.glow);
+
+    const nextBtn = document.getElementById('nextBtn');
+    nextBtn.style.background = accentConfig.btnColor;
+    nextBtn.style.color = accentConfig.btnText;
+    nextBtn.style.boxShadow = `0 8px 24px ${accentConfig.glow}`;
+
+    document.getElementById('prayerControls').innerHTML = '';
+    const titles = {
+        rosary: 'Holy Rosary', dmc: 'Divine Mercy Chaplet',
+        stmichael: "St. Michael's Chaplet", wotc: 'Way of the Cross',
+        litany: 'Litany of the Saints', anima: 'Anima Christi',
+        stpatrick: "St. Patrick's Breastplate"
+    };
+    document.getElementById('prTypeTitle').textContent = titles[type] || '';
+
+    if (type === 'rosary') {
+        const sel = document.createElement('select');
+        sel.className = 'day-select';
+        ['Sunday (Glorious)', 'Monday (Joyful)', 'Tuesday (Sorrowful)', 'Wednesday (Glorious)', 'Thursday (Luminous)', 'Friday (Sorrowful)', 'Saturday (Joyful)'].forEach((d, i) => {
+            const o = document.createElement('option');
+            o.value = i; o.textContent = d;
+            if (i === selectedDayIndex) o.selected = true;
+            sel.appendChild(o);
+        });
+        sel.onchange = e => { selectedDayIndex = parseInt(e.target.value); buildBeads(); };
+        document.getElementById('prayerControls').appendChild(sel);
+    }
+
+    document.getElementById('prayerMainMenu').classList.add('hidden');
+    document.getElementById('prayerInteractiveView').classList.add('active');
+    buildBeads();
+}
+
+// ── Build Bead Data ─────────────────────────────────────
+function buildBeads() {
+    beadArray = [];
+    if (activePrayerType === 'rosary') buildRosary();
+    else if (activePrayerType === 'dmc') buildDMC();
+    else if (activePrayerType === 'stmichael') buildSTM();
+    else if (activePrayerType === 'wotc') buildWOTC();
+    else if (activePrayerType === 'litany') buildLitany();
+    else if (activePrayerType === 'anima') buildAnima();
+    else if (activePrayerType === 'stpatrick') buildSTP();
+
+    renderRosarySVG();
+    activateBead(0);
+}
+
+function push(type, shortLabel, title, text, image, onTail) {
+    beadArray.push({ type, shortLabel, title, text, image, onTail: !!onTail, svgX: 0, svgY: 0, svgEl: null });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ROSARY BEAD ORDER — matching the physical rosary reference image:
+//
+// TAIL (onTail=true), in prayer order from first to last:
+//   [0]  cross   — Sign of Cross + Apostles Creed   (hangs at bottom)
+//   [1]  large   — Our Father
+//   [2]  small   — Hail Mary (Faith)
+//   [3]  small   — Hail Mary (Hope)
+//   [4]  small   — Hail Mary (Charity)
+//   [5]  large   — Glory Be
+//   [6]  medal   — Marian medal / joining piece      (closest to circle)
+//
+// CIRCLE (onTail=false), counterclockwise from join (5 decades):
+//   Each decade: medal (Our Father + Mystery) + 10 small (HM) + large (Glory Be + Fatima)
+//
+// CONCLUDING on tail (after circle):
+//   medal  — Hail Holy Queen
+//   cross  — Closing Prayer
+// ─────────────────────────────────────────────────────────────────
+function buildRosary() {
+    const ms = MYSTERIES[SCHEDULE[selectedDayIndex]];
+
+    // ── TAIL: Start (cross at bottom, going up to circle) ──
+    push('cross',  'Sign & Creed',    'Sign of Cross & Apostles Creed',
+         `${CORE["Sign of Cross"]}\n\n${CORE["Apostles Creed"]}`, 'images/cross.jpg', true);
+    push('large',  'Our Father',      'Our Father',         CORE["Our Father"],        'images/our_father.jpg', true);
+    push('small',  'HM — Faith',      'Hail Mary (Faith)',  CORE["Hail Mary"],         'images/hail_mary.jpg',  true);
+    push('small',  'HM — Hope',       'Hail Mary (Hope)',   CORE["Hail Mary"],         'images/hail_mary.jpg',  true);
+    push('small',  'HM — Charity',    'Hail Mary (Charity)',CORE["Hail Mary"],         'images/hail_mary.jpg',  true);
+    push('large',  'Glory Be',        'Glory Be',           CORE["Glory Be"],          'images/glory_be.jpg',   true);
+    push('medal',  'Our Lady',        'Medal of Our Lady — joining bead',
+         'As we begin the circle of the Rosary, we call upon Our Lady to guide our meditation on the Holy Mysteries.',
+         'images/hail_holy_queen.jpg', true);
+
+    // ── CIRCLE: 5 Decades ──
+    for (let i = 0; i < 5; i++) {
+        push('medal', `Mystery ${i+1}`,  ms[i].title,
+             `${ms[i].title}\n\nOur Father:\n${CORE["Our Father"]}`, ms[i].img, false);
+        for (let j = 0; j < 10; j++)
+            push('small', `HM ${j+1}`, `Hail Mary (${j+1} of 10)`, CORE["Hail Mary"], ms[i].img, false);
+        push('large', 'Glory Be', 'Glory Be & Fatima Prayer',
+             `${CORE["Glory Be"]}\n\n${CORE["Fatima Prayer"]}`, ms[i].img, false);
+    }
+
+    // ── TAIL: Concluding (after circle completes) ──
+    push('medal', 'Hail Holy Queen', 'Hail Holy Queen',   CORE["Hail Holy Queen"],  'images/hail_holy_queen.jpg', true);
+    push('cross', 'Closing',         'Concluding Prayer', CORE["Rosary Closing"],   'images/cross.jpg',           true);
+}
+
+function buildDMC() {
+    // Tail: opening prayers
+    push('cross', 'Sign of Cross',  'Sign of Cross',   CORE["Sign of Cross"],  'images/cross.jpg',       true);
+    push('large', 'Our Father',     'Our Father',      CORE["Our Father"],     'images/our_father.jpg',  true);
+    push('small', 'Hail Mary',      'Hail Mary',       CORE["Hail Mary"],      'images/hail_mary.jpg',   true);
+    push('large', 'Apostles Creed', 'Apostles Creed',  CORE["Apostles Creed"],'images/cross.jpg',        true);
+    push('medal', 'Start Chaplet',  'Begin Chaplet',
+         'On the large bead before each decade, pray the Eternal Father prayer. On the 10 small beads, pray "For the sake of His sorrowful Passion…"',
+         'images/divine_mercy.jpg', true);
+
+    // Circle: 5 decades
+    for (let i = 0; i < 5; i++) {
+        push('medal', `Decade ${i+1}`, `Eternal Father — Decade ${i+1}`, DMC["Eternal Father"], 'images/divine_mercy.jpg', false);
+        for (let j = 0; j < 10; j++)
+            push('small', `For the Sake ${j+1}`, `For the Sake (${j+1}/10)`, DMC["For the Sake"], 'images/divine_mercy.jpg', false);
+    }
+
+    // Tail: closing
+    push('medal', 'Holy God',  'Holy God (×3)',
+         `${DMC["Holy God"]}\n\n${DMC["Holy God"]}\n\n${DMC["Holy God"]}`, 'images/divine_mercy.jpg', true);
+    push('medal', 'Closing',   'Eternal God',  DMC["Closing"], 'images/divine_mercy.jpg', true);
+}
+
+function buildSTM() {
+    // Tail: opening
+    push('medal', 'Opening',    'Opening Prayer',
+         'O God, come to my assistance.\nO Lord, make haste to help me.\nGlory be to the Father, and to the Son, and to the Holy Spirit.',
+         'images/st_michael.jpg', true);
+    push('large', 'Start',      'Begin Chaplet',
+         'The Chaplet of St. Michael honors the nine choirs of Angels. For each choir, pray one Our Father and three Hail Marys.',
+         'images/st_michael.jpg', true);
+
+    // Circle: 9 choirs, each = large (choir + Our Father) + 3 small (HM)
+    for (let i = 0; i < 9; i++) {
+        push('large', `Choir ${i+1}`, `Salutation ${i+1}`,
+             `${STM_SALUTATIONS[i]}\n\nOur Father:\n${CORE["Our Father"]}`, 'images/choirs_angels.jpg', false);
+        for (let j = 0; j < 3; j++)
+            push('small', `HM ${j+1}`, `Hail Mary (${j+1}/3)`, CORE["Hail Mary"], 'images/choirs_angels.jpg', false);
+    }
+
+    // Tail: individual Archangels + concluding
+    push('large', 'St. Michael',  'For St. Michael',    CORE["Our Father"], 'images/st_michael.jpg',    true);
+    push('large', 'St. Gabriel',  'For St. Gabriel',    CORE["Our Father"], 'images/st_gabriel.jpg',    true);
+    push('large', 'St. Raphael',  'For St. Raphael',    CORE["Our Father"], 'images/st_raphael.jpg',    true);
+    push('large', 'Guardian',     'For Guardian Angel', CORE["Our Father"], 'images/guardian_angel.jpg', true);
+    push('medal', 'To St. Michael','To St. Michael',
+         'O glorious prince St. Michael, chief and commander of the heavenly hosts, guardian of souls, vanquisher of rebel spirits, servant in the house of the Divine King and our admirable conductor, you who shine with excellence and superhuman virtue deliver us from all evil, who turn to you with confidence and enable us by your gracious protection to serve God more and more faithfully every day.',
+         'images/st_michael.jpg', true);
+    push('medal', 'Pray for Us',   'Pray for us',
+         'Pray for us, O glorious St. Michael, Prince of the Church of Jesus Christ, that we may be made worthy of His promises.',
+         'images/st_michael.jpg', true);
+    push('cross', 'Closing',       'Concluding Prayer',
+         'Almighty and Everlasting God, Who, by a prodigy of goodness and a merciful desire for the salvation of all men, has appointed the most glorious Archangel St. Michael Prince of Your Church, make us worthy, we ask You, to be delivered from all our enemies, that none of them may harass us at the hour of death, but that we may be conducted by him into Your Presence. Through the merits of Jesus Christ Our Lord. Amen.',
+         'images/cross.jpg', true);
+}
+
+function buildWOTC() {
+    push('cross', 'Start', 'Sign of Cross', CORE["Sign of Cross"], 'images/cross.jpg', true);
+
+    // 14 stations on the circle
+    WOTC_STATIONS.forEach((st, i) => {
+        const img = `images/station_${i+1}.jpg`;
+        push('large', `St. ${i+1}`,  `Station ${i+1}: ${st}`,
+             `We adore You, O Christ, and we praise You.\n\nBecause, by Your holy cross, You have redeemed the world.`, img, false);
+        push('small', 'Prayers',      'Our Father, Hail Mary, Glory Be',
+             `${CORE["Our Father"]}\n\n${CORE["Hail Mary"]}\n\n${CORE["Glory Be"]}`, img, false);
+    });
+
+    push('cross', 'Closing', 'Concluding Prayer',
+         'Lord Jesus Christ, Your passion and death is the sacrifice that unites earth and heaven and reconciles all people to You. May we who have faithfully reflected on these mysteries follow in Your steps and so come to share Your glory in heaven where You live and reign with the Father and the Holy Spirit, one God, for ever and ever. Amen.',
+         'images/cross.jpg', true);
+}
+
+function buildLitany() {
+    push('cross', 'Start', 'Sign of Cross', CORE["Sign of Cross"], 'images/cross.jpg', true);
+
+    // First 5 sections on tail going up, rest on circle
+    LITANY_SECTIONS.forEach((s, i) => {
+        push('medal', s.title, s.title, s.text, 'images/all_saints.jpg', i >= 5);
+    });
+
+    push('cross', 'Closing', 'Concluding Prayer',
+         'O God, our refuge and our strength, look down with mercy upon Your people who cry to You; and by the intercession of the glorious and immaculate Virgin Mary, Mother of God, of Saint Joseph her spouse, of the blessed Apostles Peter and Paul, and of all the saints, in Your mercy and goodness hear our prayers for the conversion of sinners, and for the liberty and exaltation of our Holy Mother the Church. Through the same Christ Our Lord. Amen.',
+         'images/cross.jpg', true);
+}
+
+function buildAnima() {
+    push('cross', 'Start', 'Sign of Cross', CORE["Sign of Cross"], 'images/cross.jpg', true);
+    ANIMA_SECTIONS.forEach((s, i) => {
+        push('large', s.title, s.title, s.text, 'images/eucharist_anima.jpg', i >= 2);
+    });
+}
+
+function buildSTP() {
+    push('cross', 'Start', 'Sign of Cross', CORE["Sign of Cross"], 'images/cross.jpg', true);
+    STP_SECTIONS.forEach((s, i) => {
+        push('large', s.title, s.title, s.text, 'images/cross.jpg', i >= 4);
+    });
+    push('cross', 'Closing', 'Concluding Prayer',
+         'St. Patrick, Apostle of Ireland, pray for us.\n\nMay the shield of faith guard us, and may the grace of the Holy Trinity guide our steps this day and always. Amen.',
+         'images/cross.jpg', true);
+}
+
+// ── Activate Bead ──────────────────────────────────────
+function activateBead(idx) {
+    if (idx < 0 || idx >= beadArray.length) return;
+    currentBeadIndex = idx;
+
+    beadArray.forEach((b, i) => {
+        if (!b.svgEl) return;
+        b.svgEl.classList.remove('active','completed');
+        if (i < idx) b.svgEl.classList.add('completed');
+    });
+    beadArray[idx].svgEl.classList.add('active');
+
+    document.getElementById('beadCounter').textContent = `${idx + 1} / ${beadArray.length}`;
+
+    const textPane = document.getElementById('prTextPane');
+    textPane.classList.add('fading');
+
+    setTimeout(() => {
+        const b = beadArray[idx];
+        document.getElementById('ptdTitle').textContent = b.title;
+        document.getElementById('ptdBody').textContent = b.text;
+
+        const imgPane = document.getElementById('prImagePane');
+        const imgEl = document.getElementById('prImage');
+        const grid = document.getElementById('prInnerGrid');
+
+        if (b.image) {
+            imgEl.src = b.image;
+            imgPane.classList.remove('no-image'); imgPane.classList.add('has-image');
+            grid.classList.remove('no-image-layout');
+        } else {
+            imgPane.classList.add('no-image'); imgPane.classList.remove('has-image');
+            grid.classList.add('no-image-layout');
+        }
+
+        textPane.classList.remove('fading');
+        document.getElementById('prTextPane').scrollTop = 0;
+    }, 200);
+}
+
+function nextBead() {
+    if (currentBeadIndex < beadArray.length - 1) activateBead(currentBeadIndex + 1);
+}
+
+// ── Re-render SVG on resize ──────────────────────────
+let resizeTimer;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        if (activePrayerType && document.getElementById('prayerInteractiveView').classList.contains('active')) {
+            renderRosarySVG();
+            beadArray.forEach((b, i) => {
+                if (!b.svgEl) return;
+                b.svgEl.classList.remove('active','completed');
+                if (i < currentBeadIndex) b.svgEl.classList.add('completed');
+            });
+            if (beadArray[currentBeadIndex] && beadArray[currentBeadIndex].svgEl) {
+                beadArray[currentBeadIndex].svgEl.classList.add('active');
+            }
+        }
+    }, 80);
+});
+</script>
+</body>
+</html>
