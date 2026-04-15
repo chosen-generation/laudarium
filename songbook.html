@@ -31,6 +31,18 @@
         body, html { height: 100%; overflow: hidden; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         body::before { content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
 
+        /* PASSWORD LOGIN SCREEN */
+        #loginScreen { position: fixed; inset: 0; z-index: 10000; background: var(--bg); display: flex; align-items: center; justify-content: center; transition: opacity 0.4s ease; }
+        .login-card { background: var(--surface); padding: 32px; border-radius: var(--radius); border: 1px solid var(--border); width: 90%; max-width: 360px; box-shadow: var(--shadow-deep); text-align: center; }
+        .login-title { font-family: 'Cormorant Garamond', serif; font-size: 28px; margin-bottom: 8px; color: var(--gold); }
+        .login-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+        .login-input-wrap { position: relative; margin-bottom: 16px; }
+        .login-input { width: 100%; padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; transition: var(--transition); text-align: center;}
+        .login-input:focus { border-color: var(--gold); background: var(--surface3); box-shadow: 0 0 0 3px var(--gold-dim); }
+        .login-btn { width: 100%; padding: 12px; border-radius: var(--radius-sm); border: none; background: var(--gold); color: var(--bg); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: var(--transition); text-transform: uppercase; letter-spacing: 0.05em; }
+        .login-btn:hover { box-shadow: 0 4px 15px var(--gold-glow); transform: translateY(-1px); }
+        #loginError { color: var(--red); font-size: 13px; margin-bottom: 16px; display: none; }
+
         /* LOADING ANIMATIONS */
         .loader-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding: 40px; text-align: center; width: 100%; }
         .loader-icon-wrap { width: 80px; height: 80px; margin-bottom: 12px; animation: float-gentle 4s ease-in-out infinite; }
@@ -196,6 +208,18 @@
     const d = window.matchMedia('(prefers-color-scheme: dark)').matches;
     document.body.setAttribute('data-theme', d ? 'dark' : 'light');
 </script>
+
+<div id="loginScreen">
+    <div class="login-card">
+        <h2 class="login-title">Songbook Access</h2>
+        <p class="login-sub">Please enter the password to view the library.</p>
+        <div id="loginError">Incorrect password. Please try again.</div>
+        <div class="login-input-wrap">
+            <input type="password" id="passwordInput" class="login-input" placeholder="Password">
+        </div>
+        <button class="login-btn" onclick="checkPassword()">Enter</button>
+    </div>
+</div>
 
 <div id="app">
     <div id="overlay" onclick="closeSidebar()"></div>
@@ -405,11 +429,27 @@
     document.getElementById('esVerse').textContent = `"${v.text}"`;
     document.getElementById('esRef').textContent = `— ${v.ref}`;
 
-    // Directly initialize app since landing is gone
-    window.onload = () => {
-        openSidebar();
-        loadLibrary();
-    };
+    // PASSWORD LOGIN LOGIC
+    document.getElementById('passwordInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') checkPassword();
+    });
+
+    function checkPassword() {
+        const input = document.getElementById('passwordInput').value;
+        const errorMsg = document.getElementById('loginError');
+        
+        if (input === 'stmichael') {
+            document.getElementById('loginScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loginScreen').style.display = 'none';
+                // Initialize app after successful login
+                openSidebar();
+                loadLibrary();
+            }, 400); 
+        } else {
+            errorMsg.style.display = 'block';
+        }
+    }
 
     function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('active'); }
     function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); }
