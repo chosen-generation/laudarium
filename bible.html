@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>The Bible - In Progress</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0A0806; --surface: #161210; 
+            --text: #F0EAE0; --text2: #9A8E82; 
+            --gold: #C9A96E; --gold2: #E8C990; 
+            --purple: #9D7BB0; --purple2: #C4AEE0;
+            --border: rgba(201,169,110,0.12);
+        }
+        [data-theme="light"] {
+            --bg: #F5F0E8; --surface: #FFFFFF;
+            --text: #1A1410; --text2: #6B6058;
+            --gold: #9A6E2A; --gold2: #C49040; 
+            --purple: #6A4A7A; --purple2: #8C6BA8;
+            --border: rgba(154,110,42,0.15);
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body, html { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); overflow: hidden; cursor: pointer; }
+        body::before { content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.025; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
+
+        .container { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 2; }
+        .bg-lines { position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 60px, var(--border) 60px, var(--border) 61px), repeating-linear-gradient(90deg, transparent, transparent 60px, var(--border) 60px, var(--border) 61px); opacity: 0.4; pointer-events: none; z-index: 1; }
+        
+        .title { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 8vw, 64px); font-weight: 300; margin-bottom: 8px; color: var(--purple); }
+        .subtitle { font-size: 16px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text2); margin-bottom: 40px; }
+        .cta { font-size: 10px; letter-spacing: 0.35em; text-transform: uppercase; color: var(--gold); animation: breathe 2.5s ease-in-out infinite; margin-top: 40px; }
+        @keyframes breathe { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+        /* Animation specific */
+        .svg-container { width: 120px; height: 120px; margin-bottom: 24px; position: relative; }
+        .hammer-arm { transform-origin: 30px 60px; animation: hammer 0.8s infinite alternate ease-in; }
+        .spark { animation: sparkAnim 0.8s infinite alternate ease-out; opacity: 0; transform-origin: center; }
+        
+        @keyframes hammer {
+            0% { transform: rotate(-40deg); }
+            100% { transform: rotate(15deg); }
+        }
+        @keyframes sparkAnim {
+            0%, 90% { opacity: 0; transform: scale(0.5) translateY(0); }
+            100% { opacity: 1; transform: scale(1.2) translateY(-10px); }
+        }
+    </style>
+</head>
+<body onclick="window.location.href='index.html'">
+    <script>
+        const d = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.body.setAttribute('data-theme', d ? 'dark' : 'light');
+    </script>
+    
+    <div class="bg-lines"></div>
+    <div class="container">
+        <div class="svg-container">
+            <svg viewBox="0 0 100 100" width="100%" height="100%">
+                <circle cx="50" cy="25" r="15" fill="none" stroke="var(--gold)" stroke-width="2" opacity="0.8"/>
+                <path d="M 40 40 C 40 30, 60 30, 60 40 L 65 80 L 35 80 Z" fill="var(--text2)" opacity="0.6"/>
+                <rect x="20" y="80" width="60" height="10" fill="var(--purple2)" opacity="0.8"/>
+                <rect x="25" y="90" width="10" height="10" fill="var(--purple)" opacity="0.5"/>
+                <rect x="65" y="90" width="10" height="10" fill="var(--purple)" opacity="0.5"/>
+                
+                <g class="hammer-arm">
+                    <path d="M 50 45 L 30 60 L 35 75" fill="none" stroke="var(--text)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="25" y="70" width="20" height="6" fill="var(--text)" transform="rotate(-20 35 75)"/>
+                    <rect x="33" y="60" width="4" height="20" fill="var(--gold2)" transform="rotate(-20 35 75)"/>
+                </g>
+
+                <circle cx="35" cy="75" r="2" fill="var(--gold)" class="spark"/>
+                <circle cx="42" cy="70" r="1.5" fill="var(--gold2)" class="spark" style="animation-delay: 0.1s"/>
+            </svg>
+        </div>
+        
+        <h1 class="title">The Bible</h1>
+        <div class="subtitle">In Progress</div>
+        <div class="cta">Tap to see more later</div>
+    </div>
+</body>
+</html>
