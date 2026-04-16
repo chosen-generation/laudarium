@@ -72,12 +72,13 @@
         .step-content p { margin-bottom: 20px; text-align: justify; }
         .step-content i { color: var(--gold); }
 
-        /* INTERACTIVE INLINE READING LINKS */
+        /* BUTTON LINK STYLES (Replaces <a> tags) */
         .reading-link {
             display: inline-flex; align-items: center; background: var(--green-dim); color: var(--green);
-            padding: 2px 12px; border-radius: 12px; text-decoration: none; font-family: 'DM Sans', sans-serif;
+            padding: 4px 14px; border-radius: 12px; text-decoration: none; font-family: 'DM Sans', sans-serif;
             font-size: 13px; font-weight: 600; font-style: normal; letter-spacing: 0.05em; text-transform: uppercase;
-            transition: var(--transition); vertical-align: middle; margin: 0 4px; border: 1px solid transparent; white-space: nowrap;
+            transition: var(--transition); vertical-align: middle; margin: 0 4px; border: 1px solid transparent; 
+            white-space: nowrap; cursor: pointer; outline: none; line-height: 1.2;
         }
         .reading-link:hover { background: var(--surface); border-color: var(--green); box-shadow: 0 4px 12px var(--green-glow); transform: translateY(-2px); }
         .reading-link::after { content: "↗"; font-size: 14px; margin-left: 4px; }
@@ -277,9 +278,10 @@
 </section>
 
 <script>
-    // System Date Setup
+    // Realtime System Date Setup
+    const systemDate = new Date();
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    document.getElementById('currentDate').innerText = new Date().toLocaleDateString('en-US', options);
+    document.getElementById('currentDate').innerText = systemDate.toLocaleDateString('en-US', options);
 
     // Tab Logic
     function switchTab(tabId) {
@@ -293,8 +295,6 @@
     function triggerFinishAnimation() {
         const tyScreen = document.getElementById('thankYouScreen');
         tyScreen.classList.add('active');
-        
-        // Wait for 4 seconds for the user to read and watch the animation, then return home
         setTimeout(() => {
             window.location.href = 'index.html';
         }, 4000);
@@ -328,7 +328,6 @@
 
     function navigateStep(direction) {
         if (currentStep === steps.length - 1 && direction === 1) {
-            // Trigger the beautiful new completion animation instead of abrupt redirect
             triggerFinishAnimation();
             return;
         }
@@ -347,18 +346,46 @@
             const data = await response.json();
 
             if (data.status === 'ok' && data.items.length > 0) {
-                const todayReflection = data.items[0];
+                // Formatting local laptop time to match RSS feed date pattern
+                const yyyy = systemDate.getFullYear();
+                const mm = String(systemDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(systemDate.getDate()).padStart(2, '0');
+                const targetDate = `${yyyy}-${mm}-${dd}`;
+
+                // Force to pull reading corresponding to laptop's local current day
+                let todayReflection = data.items.find(item => item.pubDate && item.pubDate.startsWith(targetDate));
+                if (!todayReflection) {
+                    todayReflection = data.items[0]; // Fallback to newest if not found in feed
+                }
+
                 document.getElementById('refTitle').innerText = todayReflection.title;
 
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(todayReflection.content || todayReflection.description, 'text/html');
                 
+                // Strip unnecessary elements 
                 doc.querySelectorAll('img, script, a.share-btn, .addtoany_share_save_container').forEach(el => el.remove());
                 
+                // Clean unwanted marketing text (Holy Trinity promo logic)
+                doc.querySelectorAll('p, div, span').forEach(el => {
+                    if (el.textContent.toLowerCase().includes('holy trinity')) {
+                        el.remove();
+                    }
+                });
+
+                // The fix: Transform standard <a> tags into <button> elements with working onclick attributes
+                // We use setAttribute so the event listener survives when converted to strings using innerHTML later
                 doc.querySelectorAll('a').forEach(a => {
-                    a.className = 'reading-link';
-                    a.target = '_blank';
-                    a.rel = 'noopener noreferrer';
+                    const btn = document.createElement('button');
+                    btn.className = 'reading-link';
+                    btn.innerHTML = a.innerHTML;
+                    
+                    const href = a.getAttribute('href');
+                    if (href) {
+                        btn.setAttribute('onclick', `window.open('${href}', '_blank')`);
+                    }
+                    
+                    a.parentNode.replaceChild(btn, a);
                 });
                 
                 const paragraphs = Array.from(doc.querySelectorAll('p')).filter(p => p.innerText.trim().length > 0);
