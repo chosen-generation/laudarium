@@ -13,6 +13,7 @@
             --theme-color: #C9A96E; --theme-glow: rgba(201,169,110,0.2);
             --transition-puppet: all 1.2s cubic-bezier(0.25, 1, 0.15, 1);
             --transition-card: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-ui: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -21,12 +22,15 @@
         /* Noise Overlay */
         body::before { content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.035; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
 
-        header { position: fixed; top: 0; left: 0; width: 100%; padding: 24px 40px; z-index: 100; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(10,8,6,0.9), transparent); }
+        header { position: fixed; top: 0; left: 0; width: 100%; padding: 24px 40px; z-index: 100; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(10,8,6,0.9), transparent); opacity: 0; pointer-events: none; transition: var(--transition-ui); }
+        header.visible { opacity: 1; pointer-events: auto; }
         .back-btn { background: none; border: none; color: var(--text2); font-family: 'DM Sans', sans-serif; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; text-decoration: none; transition: 0.3s; }
         .back-btn:hover { color: var(--theme-color); text-shadow: 0 0 10px var(--theme-color); }
 
         /* SELECTION SCREEN */
-        #selection-view { min-height: 100vh; padding: 100px 20px 60px; display: flex; flex-direction: column; align-items: center; transition: opacity 0.5s; position: relative; z-index: 10; }
+        #selection-view { min-height: 100vh; padding: 100px 20px 60px; display: flex; flex-direction: column; align-items: center; transition: var(--transition-ui); position: relative; z-index: 10; opacity: 1; }
+        #selection-view.hidden { opacity: 0; pointer-events: none; }
+        
         .view-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 6vw, 56px); font-weight: 300; font-style: italic; color: var(--gold); margin-bottom: 12px; text-shadow: 0 4px 20px rgba(201,169,110,0.2); text-align: center; }
         .view-subtitle { font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--text2); margin-bottom: 60px; text-align: center; }
         
@@ -44,14 +48,15 @@
         .saint-card p { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text2); position: relative; z-index: 2; font-weight: 500; }
 
         /* SCROLLYTELLING CONTAINER */
-        #story-view { display: none; width: 100%; position: relative; }
+        #story-view { display: none; width: 100%; position: relative; opacity: 0; transition: var(--transition-ui); }
+        #story-view.visible { opacity: 1; }
         
         /* STAGE & LIGHTING */
         .stage-container { position: fixed; top: 0; left: 0; width: 50vw; height: 100vh; display: flex; justify-content: center; align-items: center; pointer-events: none; z-index: 1; overflow: hidden; }
         .ambient-glow { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90vh; height: 90vh; border-radius: 50%; filter: blur(120px); opacity: 0.15; transition: background 1s ease, opacity 1s ease; mix-blend-mode: screen; }
 
         /* =========================================
-           THE ARTICULATED PUPPET ENGINE 
+           REFINED ARTICULATED PUPPET ENGINE 
            ========================================= */
         .character-svg {
             width: 380px; height: 500px; overflow: visible !important; 
@@ -60,17 +65,17 @@
             
             /* Base Puppet Variables */
             --char-scale: 1; --char-y: 0px; --char-rot: 0deg; --char-bright: 1;
-            --head-rot: 0deg; --head-y: 0px;
+            --head-rot: 0deg; 
             --arm-l-rot: 0deg; --arm-r-rot: 0deg;
             --robe-skew: 0deg;
             /* Prop Variables */
-            --wings-scale: 1; --wings-rot: 0deg; --wings-y: 0px; --wings-op: 1;
-            --cross-scale: 1; --cross-y: 0px; --cross-rot: 0deg; --cross-op: 0; --cross-color: var(--theme-color);
-            --sword-rot: 0deg; --sword-y: 0px; --sword-x: 0px; --sword-color: var(--theme-color);
-            --staff-rot: 0deg; --staff-y: 0px; --staff-x: 0px;
-            --scroll-rot: 0deg; --scroll-y: 0px; --scroll-color: var(--bg);
-            --flames-scale: 1; --flames-y: 0px; --flames-op: 0;
-            --crown-scale: 1; --crown-y: -20px; --crown-op: 0;
+            --wings-scale: 1; --wings-rot: 0deg; --wings-op: 1;
+            --cross-scale: 1; --cross-rot: 0deg; --cross-op: 0; --cross-color: var(--theme-color);
+            --sword-rot: 0deg; --sword-color: var(--theme-color);
+            --staff-rot: 0deg;
+            --scroll-rot: 0deg; --scroll-color: var(--bg);
+            --flames-scale: 1; --flames-op: 0;
+            --crown-y: -40px; --crown-op: 0;
             --halo-op: 0.4;
         }
 
@@ -84,63 +89,67 @@
 
         /* Transform Bindings */
         .character-svg { transform: scale(var(--char-scale)) translateY(var(--char-y)) rotate(var(--char-rot)); filter: brightness(var(--char-bright)) drop-shadow(0 20px 30px rgba(0,0,0,0.8)); }
-        .p-head { transform-origin: 100px 50px; transform: translateY(var(--head-y)) rotate(var(--head-rot)); }
-        .p-halo { transform-origin: 100px 50px; transform: translateY(var(--head-y)); opacity: var(--halo-op); }
-        .p-arm-l { transform-origin: 80px 65px; transform: rotate(var(--arm-l-rot)); }
-        .p-arm-r { transform-origin: 120px 65px; transform: rotate(var(--arm-r-rot)); }
+        
+        .p-head { transform-origin: 100px 50px; transform: rotate(var(--head-rot)); }
+        .p-halo { transform-origin: 100px 50px; opacity: var(--halo-op); }
+        .p-arm-l { transform-origin: 85px 65px; transform: rotate(var(--arm-l-rot)); }
+        .p-arm-r { transform-origin: 115px 65px; transform: rotate(var(--arm-r-rot)); }
         .p-robe { transform-origin: 100px 120px; transform: skewX(var(--robe-skew)); }
 
-        .prop-wings { transform-origin: 100px 150px; transform: scale(var(--wings-scale)) translateY(var(--wings-y)) rotate(var(--wings-rot)); opacity: var(--wings-op); }
-        .prop-cross { transform-origin: 100px 150px; transform: scale(var(--cross-scale)) translateY(var(--cross-y)) rotate(var(--cross-rot)); opacity: var(--cross-op); stroke: var(--cross-color); }
-        .prop-sword { transform-origin: 130px 140px; transform: translate(var(--sword-x), var(--sword-y)) rotate(var(--sword-rot)); color: var(--sword-color); }
-        .prop-staff { transform-origin: 130px 140px; transform: translate(var(--staff-x), var(--staff-y)) rotate(var(--staff-rot)); }
-        .prop-scroll { transform-origin: 125px 150px; transform: translateY(var(--scroll-y)) rotate(var(--scroll-rot)); color: var(--theme-color); fill: var(--scroll-color); }
-        .prop-flames { transform-origin: 100px 280px; transform: scaleY(var(--flames-scale)) translateY(var(--flames-y)); opacity: var(--flames-op); }
-        .prop-crown { transform-origin: 100px 50px; transform: scale(var(--crown-scale)) translateY(var(--crown-y)); opacity: var(--crown-op); }
+        .prop-wings { transform-origin: 100px 150px; transform: scale(var(--wings-scale)) rotate(var(--wings-rot)); opacity: var(--wings-op); }
+        .prop-flames { transform-origin: 100px 280px; transform: scaleY(var(--flames-scale)); opacity: var(--flames-op); }
+        
+        /* Crown is now relative to the head */
+        .prop-crown { transform: translateY(var(--crown-y)); opacity: var(--crown-op); }
 
-        /* Dynamic Prop Toggling */
+        /* Nested Hand Props */
+        .prop-sword { transform: rotate(var(--sword-rot)); color: var(--sword-color); }
+        .prop-cross { transform: rotate(var(--cross-rot)) scale(var(--cross-scale)); stroke: var(--cross-color); }
+        .prop-scroll { transform: rotate(var(--scroll-rot)); color: var(--theme-color); fill: var(--scroll-color); }
+        .prop-staff { transform: rotate(var(--staff-rot)); }
+
         .prop-group { display: none; }
         .prop-group.active { display: block; }
 
         /* ========================================================
-           STATE KEYFRAMES (ACCURATE STORY BEATS)
+           STATE KEYFRAMES (ACCURATE & NATURAL STORY BEATS)
            ======================================================== */
 
         /* --- MOTHER MARY --- */
-        .saint-mary.state-0 .character-svg { --head-rot: 15deg; --arm-l-rot: 30deg; --arm-r-rot: -30deg; --char-scale: 0.95; }
-        .saint-mary.state-1 .character-svg { --head-rot: -10deg; --arm-l-rot: -15deg; --arm-r-rot: 15deg; --char-scale: 1.05; --halo-op: 0.8; }
-        .saint-mary.state-2 .character-svg { --head-rot: 35deg; --head-y: 10px; --arm-l-rot: 0deg; --arm-r-rot: 0deg; --char-bright: 0.7; --cross-op: 1; --cross-y: -10px; --cross-scale: 1.3; --cross-color: #FF4444; }
-        .saint-mary.state-3 .character-svg { --head-rot: -15deg; --arm-l-rot: -60deg; --arm-r-rot: 60deg; --char-scale: 1.15; --char-y: -30px; --crown-op: 1; --crown-y: -40px; --halo-op: 1; }
+        .saint-mary.state-0 .character-svg { --head-rot: 10deg; --arm-l-rot: 15deg; --arm-r-rot: -15deg; --char-scale: 0.95; }
+        .saint-mary.state-1 .character-svg { --head-rot: -5deg; --arm-l-rot: -20deg; --arm-r-rot: 20deg; --char-scale: 1.05; --halo-op: 0.8; }
+        .saint-mary.state-2 .character-svg { --head-rot: 15deg; --arm-l-rot: 10deg; --arm-r-rot: -10deg; --char-bright: 0.7; --cross-op: 1; --cross-scale: 1; --cross-color: #FF4444; }
+        .saint-mary.state-3 .character-svg { --head-rot: -10deg; --arm-l-rot: -45deg; --arm-r-rot: 45deg; --char-scale: 1.1; --char-y: -10px; --crown-op: 1; --crown-y: 0px; --halo-op: 1; }
 
         /* --- ST. MICHAEL --- */
-        .saint-michael.state-0 .character-svg { --wings-scale: 0.8; --sword-rot: 0deg; --sword-y: 20px; --arm-r-rot: -10deg; }
-        .saint-michael.state-1 .character-svg { --char-scale: 1.1; --char-y: -20px; --wings-scale: 1.4; --wings-rot: -5deg; --sword-rot: 45deg; --sword-y: -40px; --arm-r-rot: -100deg; --arm-l-rot: 20deg; --sword-color: #FFF; }
-        .saint-michael.state-2 .character-svg { --char-scale: 1.15; --char-y: 40px; --char-rot: -10deg; --wings-rot: 15deg; --sword-rot: -140deg; --sword-y: 50px; --sword-x: -20px; --arm-r-rot: 60deg; --arm-l-rot: -40deg; --sword-color: #FFF; }
-        .saint-michael.state-3 .character-svg { --char-scale: 1.2; --char-y: -30px; --wings-scale: 1.5; --sword-rot: -20deg; --sword-y: -10px; --arm-r-rot: -30deg; --arm-l-rot: -20deg; }
+        .saint-michael.state-0 .character-svg { --wings-scale: 0.8; --sword-rot: 0deg; --arm-l-rot: 10deg; --arm-r-rot: -10deg; }
+        .saint-michael.state-1 .character-svg { --char-scale: 1.1; --char-y: -10px; --wings-scale: 1.4; --wings-rot: -5deg; --arm-l-rot: 20deg; --arm-r-rot: -50deg; --sword-rot: 20deg; --sword-color: #FFF; }
+        .saint-michael.state-2 .character-svg { --char-scale: 1.15; --char-y: 15px; --wings-rot: 10deg; --arm-l-rot: -20deg; --arm-r-rot: 40deg; --sword-rot: -90deg; --sword-color: #FFF; }
+        .saint-michael.state-3 .character-svg { --char-scale: 1.2; --char-y: -15px; --wings-scale: 1.5; --arm-l-rot: -30deg; --arm-r-rot: -30deg; --sword-rot: -10deg; }
 
         /* --- ST. JOAN OF ARC --- */
-        .saint-joan.state-0 .character-svg { --head-rot: -20deg; --char-scale: 0.9; --arm-l-rot: 30deg; --arm-r-rot: -30deg; }
-        .saint-joan.state-1 .character-svg { --char-scale: 1.1; --head-rot: 0; --sword-rot: 20deg; --sword-y: -30px; --arm-r-rot: -60deg; --arm-l-rot: 10deg; --sword-color: #FFF; }
-        .saint-joan.state-2 .character-svg { --char-scale: 0.85; --char-y: 30px; --head-rot: 25deg; --arm-l-rot: -40deg; --arm-r-rot: 40deg; --sword-rot: -90deg; --sword-y: 40px; --sword-color: rgba(255,255,255,0.3); }
-        .saint-joan.state-3 .character-svg { --char-scale: 1.15; --char-y: -20px; --head-rot: -30deg; --flames-op: 0.9; --flames-scale: 1.8; --flames-y: -20px; --sword-rot: 0; --sword-y: -50px; --arm-r-rot: -120deg; --arm-l-rot: 120deg; --sword-color: #FFF; }
+        .saint-joan.state-0 .character-svg { --head-rot: -10deg; --char-scale: 0.95; --arm-l-rot: 15deg; --arm-r-rot: -15deg; }
+        .saint-joan.state-1 .character-svg { --char-scale: 1.05; --head-rot: 0; --arm-l-rot: 10deg; --arm-r-rot: -40deg; --sword-rot: 20deg; --sword-color: #FFF; }
+        .saint-joan.state-2 .character-svg { --char-scale: 0.9; --char-y: 10px; --head-rot: 15deg; --arm-l-rot: -20deg; --arm-r-rot: 20deg; --sword-rot: -90deg; --sword-color: rgba(255,255,255,0.3); }
+        .saint-joan.state-3 .character-svg { --char-scale: 1.1; --char-y: -10px; --head-rot: -15deg; --flames-op: 0.9; --flames-scale: 1.5; --arm-l-rot: 30deg; --arm-r-rot: -50deg; --sword-rot: 30deg; --sword-color: #FFF; }
 
         /* --- ST. GERARD --- */
-        .saint-gerard.state-0 .character-svg { --char-scale: 0.85; --char-y: 20px; --head-rot: 15deg; --arm-l-rot: 20deg; --arm-r-rot: -20deg; }
-        .saint-gerard.state-1 .character-svg { --char-scale: 0.8; --char-y: 30px; --robe-skew: -5deg; --head-rot: 25deg; --arm-l-rot: -50deg; --arm-r-rot: 50deg; --char-bright: 0.7; }
-        .saint-gerard.state-2 .character-svg { --char-scale: 1; --char-y: 0; --head-rot: -10deg; --arm-r-rot: -70deg; --arm-l-rot: 10deg; --cross-op: 1; --cross-y: -10px; --cross-color: #FFF; }
-        .saint-gerard.state-3 .character-svg { --char-scale: 1.1; --char-y: -20px; --head-rot: 0; --arm-r-rot: -100deg; --arm-l-rot: 100deg; --halo-op: 1; }
+        .saint-gerard.state-0 .character-svg { --char-scale: 0.9; --head-rot: 10deg; --arm-l-rot: 10deg; --arm-r-rot: -10deg; }
+        .saint-gerard.state-1 .character-svg { --char-scale: 0.85; --robe-skew: -5deg; --head-rot: 15deg; --arm-l-rot: -20deg; --arm-r-rot: 20deg; --char-bright: 0.7; }
+        .saint-gerard.state-2 .character-svg { --char-scale: 1; --head-rot: -5deg; --arm-l-rot: 10deg; --arm-r-rot: -30deg; --cross-rot: 15deg; --cross-op: 1; --cross-color: #FFF; }
+        .saint-gerard.state-3 .character-svg { --char-scale: 1.05; --char-y: -10px; --head-rot: 0; --arm-l-rot: -10deg; --arm-r-rot: -40deg; --cross-rot: 10deg; --halo-op: 1; }
 
         /* --- ST. PATRICK --- */
-        .saint-patrick.state-0 .character-svg { --char-scale: 0.85; --char-y: 30px; --head-rot: 20deg; --robe-skew: -5deg; --arm-l-rot: 30deg; --arm-r-rot: -30deg; }
-        .saint-patrick.state-1 .character-svg { --char-scale: 1; --char-y: 0; --head-rot: -20deg; --staff-rot: 10deg; --staff-y: -10px; --arm-r-rot: -40deg; }
-        .saint-patrick.state-2 .character-svg { --char-scale: 1.1; --char-y: -10px; --robe-skew: 8deg; --staff-rot: -15deg; --staff-y: 10px; --arm-r-rot: 20deg; --arm-l-rot: -30deg; }
-        .saint-patrick.state-3 .character-svg { --char-scale: 1.2; --char-y: -20px; --head-rot: -10deg; --staff-rot: 0; --staff-y: -20px; --flames-op: 0.8; --flames-scale: 1.5; --arm-r-rot: -120deg; --arm-l-rot: 30deg; }
+        .saint-patrick.state-0 .character-svg { --char-scale: 0.9; --head-rot: 15deg; --robe-skew: -5deg; --arm-l-rot: 15deg; --arm-r-rot: -15deg; }
+        .saint-patrick.state-1 .character-svg { --char-scale: 1; --head-rot: -10deg; --arm-l-rot: -15deg; --arm-r-rot: -20deg; --staff-rot: 10deg; }
+        .saint-patrick.state-2 .character-svg { --char-scale: 1.05; --robe-skew: 5deg; --arm-l-rot: -10deg; --arm-r-rot: 10deg; --staff-rot: -5deg; }
+        .saint-patrick.state-3 .character-svg { --char-scale: 1.1; --char-y: -10px; --head-rot: -5deg; --arm-l-rot: 20deg; --arm-r-rot: -40deg; --staff-rot: 15deg; --flames-op: 0.8; --flames-scale: 1.2; }
 
         /* --- ST. ANNE --- */
-        .saint-anne.state-0 .character-svg { --char-scale: 0.9; --head-rot: -10deg; --arm-l-rot: 20deg; --arm-r-rot: -20deg; }
-        .saint-anne.state-1 .character-svg { --char-scale: 1.05; --char-y: -10px; --head-rot: 15deg; --scroll-rot: -10deg; --scroll-y: 10px; --arm-r-rot: -30deg; --scroll-color: #FFF; }
-        .saint-anne.state-2 .character-svg { --char-scale: 1.1; --char-y: 10px; --robe-skew: 5deg; --head-rot: 10deg; --scroll-rot: 5deg; --scroll-y: 5px; --arm-l-rot: -40deg; --arm-r-rot: -20deg; }
-        .saint-anne.state-3 .character-svg { --char-scale: 1.15; --char-y: -15px; --head-rot: 0deg; --arm-l-rot: 50deg; --arm-r-rot: -50deg; --halo-op: 1; }
+        .saint-anne.state-0 .character-svg { --char-scale: 0.95; --head-rot: -5deg; --arm-l-rot: 10deg; --arm-r-rot: -10deg; }
+        .saint-anne.state-1 .character-svg { --char-scale: 1.05; --head-rot: 10deg; --arm-l-rot: 10deg; --arm-r-rot: -20deg; --scroll-rot: 5deg; --scroll-color: #FFF; }
+        .saint-anne.state-2 .character-svg { --char-scale: 1.08; --robe-skew: 5deg; --head-rot: 5deg; --arm-l-rot: -20deg; --arm-r-rot: -10deg; --scroll-rot: 0deg; }
+        .saint-anne.state-3 .character-svg { --char-scale: 1.1; --char-y: -10px; --head-rot: 0deg; --arm-l-rot: 30deg; --arm-r-rot: -30deg; --scroll-rot: 15deg; --halo-op: 1; }
 
         /* Right: Scrolling Text */
         .story-scroll-container { margin-left: 50vw; width: 50vw; position: relative; z-index: 20; padding-bottom: 20vh; }
@@ -179,7 +188,7 @@
 </head>
 <body>
 
-    <header>
+    <header id="main-header">
         <button class="back-btn" id="nav-btn" onclick="goHome()">← Return</button>
     </header>
 
@@ -200,13 +209,6 @@
                         <path d="M 100 130 C 180 50, 210 180, 160 200 C 140 210, 120 160, 100 150 Z" class="puppet-stroke" fill="rgba(255,255,255,0.03)"/>
                     </g>
                 </g>
-                
-                <g class="prop-group" id="props-cross">
-                    <g class="prop prop-cross puppet-part">
-                        <line x1="100" y1="20" x2="100" y2="250" class="prop-stroke"/>
-                        <line x1="40" y1="90" x2="160" y2="90" class="prop-stroke"/>
-                    </g>
-                </g>
 
                 <g class="prop-group" id="props-flames">
                     <g class="prop prop-flames puppet-part">
@@ -223,38 +225,52 @@
                     
                     <path d="M 85 60 L 115 60 C 120 90, 120 120, 120 120 L 80 120 C 80 120, 80 90, 85 60 Z" class="puppet-fill puppet-part p-torso"/>
                     
-                    <path d="M 85 65 C 60 90, 60 130, 75 160" class="puppet-stroke puppet-part p-arm-l"/>
+                    <g class="puppet-part p-head">
+                        <circle cx="100" cy="50" r="16" class="puppet-fill"/>
+                        <g class="prop-group" id="props-crown">
+                            <g class="prop prop-crown" style="transform-origin: 100px 50px;">
+                                <path d="M 88 34 L 90 20 L 100 28 L 110 20 L 112 34 Z" fill="var(--theme-color)"/>
+                            </g>
+                        </g>
+                    </g>
+
+                    <g class="puppet-part p-arm-l">
+                        <path d="M 85 65 C 55 90, 60 130, 75 155" class="puppet-stroke" stroke-width="5"/>
+                        <circle cx="75" cy="155" r="5" class="puppet-fill"/>
+                        
+                        <g class="prop-group" id="props-staff">
+                            <g class="prop prop-staff" style="transform-origin: 75px 155px;">
+                                <path d="M 75 280 L 75 40 C 75 10, 105 0, 105 30 C 105 40, 95 50, 90 45" class="prop-stroke" stroke-width="4"/>
+                            </g>
+                        </g>
+                    </g>
                     
-                    <path d="M 115 65 C 140 90, 140 130, 125 160" class="puppet-stroke puppet-part p-arm-r"/>
-                    
-                    <circle cx="100" cy="50" r="16" class="puppet-fill puppet-part p-head"/>
-                </g>
+                    <g class="puppet-part p-arm-r">
+                        <path d="M 115 65 C 145 90, 140 130, 125 155" class="puppet-stroke" stroke-width="5"/>
+                        <circle cx="125" cy="155" r="5" class="puppet-fill"/>
+                        
+                        <g class="prop-group" id="props-sword">
+                            <g class="prop prop-sword" style="transform-origin: 125px 155px;">
+                                <line x1="125" y1="180" x2="125" y2="20" class="prop-stroke" stroke-width="4"/>
+                                <line x1="105" y1="145" x2="145" y2="145" class="prop-stroke" stroke-width="5"/>
+                                <circle cx="125" cy="185" r="4" class="puppet-fill"/>
+                            </g>
+                        </g>
 
-                <g class="prop-group" id="props-sword">
-                    <g class="prop prop-sword puppet-part">
-                        <line x1="130" y1="140" x2="130" y2="10" class="prop-stroke" stroke-width="4"/>
-                        <line x1="110" y1="100" x2="150" y2="100" class="prop-stroke" stroke-width="5"/>
-                        <circle cx="130" cy="145" r="4" class="puppet-fill"/>
-                    </g>
-                </g>
+                        <g class="prop-group" id="props-scroll">
+                            <g class="prop prop-scroll" style="transform-origin: 125px 155px;">
+                                <rect x="110" y="125" width="30" height="40" rx="2" class="prop-stroke" />
+                                <line x1="115" y1="140" x2="135" y2="140" class="prop-stroke" stroke-width="1.5"/>
+                                <line x1="115" y1="150" x2="130" y2="150" class="prop-stroke" stroke-width="1.5"/>
+                            </g>
+                        </g>
 
-                <g class="prop-group" id="props-staff">
-                    <g class="prop prop-staff puppet-part">
-                        <path d="M 130 280 L 130 50 C 130 20, 160 10, 160 40 C 160 50, 150 60, 145 55" class="prop-stroke" stroke-width="4"/>
-                    </g>
-                </g>
-
-                <g class="prop-group" id="props-scroll">
-                    <g class="prop prop-scroll puppet-part">
-                        <rect x="110" y="130" width="30" height="40" rx="2" class="prop-stroke" />
-                        <line x1="115" y1="145" x2="135" y2="145" class="prop-stroke" stroke-width="1.5"/>
-                        <line x1="115" y1="155" x2="130" y2="155" class="prop-stroke" stroke-width="1.5"/>
-                    </g>
-                </g>
-
-                <g class="prop-group" id="props-crown">
-                    <g class="prop prop-crown puppet-part">
-                        <path d="M 100 -5 L 105 5 L 115 0 L 110 10 L 120 15 L 110 20 L 100 30 L 90 20 L 80 15 L 90 10 L 85 0 L 95 5 Z" fill="var(--theme-color)"/>
+                        <g class="prop-group" id="props-cross">
+                            <g class="prop prop-cross" style="transform-origin: 125px 155px;">
+                                <line x1="125" y1="50" x2="125" y2="220" class="prop-stroke" stroke-width="4"/>
+                                <line x1="95" y1="100" x2="155" y2="100" class="prop-stroke" stroke-width="4"/>
+                            </g>
+                        </g>
                     </g>
                 </g>
             </svg>
@@ -299,7 +315,9 @@
                 ]
             },
             {
-                id: 'gerard', name: 'St. Gerard Majella', title: 'The Wonder Worker', icon: '✚',
+                id: 'gerard', name: 'St. Gerard Majella', title: 'The Wonder Worker', 
+                // Elegant Latin Cross icon
+                icon: `<svg viewBox="0 0 100 100"><line x1="50" y1="20" x2="50" y2="80" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><line x1="30" y1="40" x2="70" y2="40" stroke="currentColor" stroke-width="6" stroke-linecap="round"/></svg>`,
                 color: '#E05C5C', activeProps: ['cross'],
                 story: [
                     { chapter: "The Calling", title: "The Humble Tailor", desc: "Born into poverty, Gerard was a frail tailor whose only desire was to do the will of God entirely. Denied entry to religious orders due to his weak health, he persisted until the Redemptorists finally accepted him as a lay brother." },
@@ -358,16 +376,13 @@
             document.documentElement.style.setProperty('--theme-glow', `${saint.color}80`);
             document.getElementById('ambient-glow').style.background = saint.color;
 
-            // Apply base saint class
             document.getElementById('stage').className = `stage-container state-0 saint-${currentSaintId}`;
 
-            // Reset & Toggle Props
             document.querySelectorAll('.prop-group').forEach(p => p.classList.remove('active'));
             saint.activeProps.forEach(propId => {
                 document.getElementById(`props-${propId}`).classList.add('active');
             });
 
-            // Build Scrollytelling Nodes
             const container = document.getElementById('story-content');
             container.innerHTML = '';
             
@@ -383,25 +398,49 @@
                 container.appendChild(step);
             });
 
-            // Transition UI
-            document.getElementById('selection-view').style.display = 'none';
-            document.getElementById('story-view').style.display = 'block';
-            document.getElementById('nav-btn').innerText = "← Back to Saints";
-            window.scrollTo(0, 0);
+            const selectionView = document.getElementById('selection-view');
+            const storyView = document.getElementById('story-view');
+            const header = document.getElementById('main-header');
 
-            setupObserver();
-            startParticles(saint.color);
+            selectionView.classList.add('hidden');
+            
+            setTimeout(() => {
+                selectionView.style.display = 'none';
+                storyView.style.display = 'block';
+                
+                // Force layout reflow
+                void storyView.offsetWidth; 
+                
+                storyView.classList.add('visible');
+                header.classList.add('visible');
+                
+                window.scrollTo(0, 0);
+                setupObserver();
+                startParticles(saint.color);
+            }, 600);
         }
 
         function goHome() {
-            if(document.getElementById('story-view').style.display === 'block') {
-                document.getElementById('story-view').style.display = 'none';
-                document.getElementById('selection-view').style.display = 'flex';
-                document.getElementById('nav-btn').innerText = "← Return";
-                document.getElementById('stage').className = 'stage-container state-0';
-                currentSaintId = '';
-                clearInterval(particleInterval);
-                document.getElementById('particle-container').innerHTML = '';
+            const storyView = document.getElementById('story-view');
+            const selectionView = document.getElementById('selection-view');
+            const header = document.getElementById('main-header');
+
+            if (storyView.style.display === 'block') {
+                storyView.classList.remove('visible');
+                header.classList.remove('visible');
+                
+                setTimeout(() => {
+                    storyView.style.display = 'none';
+                    selectionView.style.display = 'flex';
+                    
+                    void selectionView.offsetWidth;
+                    selectionView.classList.remove('hidden');
+                    
+                    document.getElementById('stage').className = 'stage-container state-0';
+                    currentSaintId = '';
+                    clearInterval(particleInterval);
+                    document.getElementById('particle-container').innerHTML = '';
+                }, 600);
             } else {
                 window.location.href = 'index.html';
             }
@@ -426,14 +465,12 @@
             steps.forEach(step => observer.observe(step));
         }
 
-        // DYNAMIC PARTICLE ENGINE
         function startParticles(color) {
             clearInterval(particleInterval);
             const container = document.getElementById('particle-container');
             container.innerHTML = '';
 
             particleInterval = setInterval(() => {
-                // Determine particle intensity based on current state
                 const stageClass = document.getElementById('stage').className;
                 const isIntense = stageClass.includes('state-3') || stageClass.includes('joan') || stageClass.includes('patrick');
                 
@@ -445,7 +482,6 @@
                     p.style.width = `${size}px`;
                     p.style.height = `${size}px`;
                     
-                    // Fire colors for Joan/Patrick, theme color for others
                     const isFire = (currentSaintId === 'joan' || currentSaintId === 'patrick') && stageClass.includes('state-3');
                     p.style.background = isFire ? (Math.random() > 0.5 ? '#FF4400' : '#FFCC00') : color;
                     p.style.boxShadow = `0 0 ${size*2}px ${p.style.background}`;
@@ -459,8 +495,6 @@
                     p.style.animation = `floatUp ${duration}s cubic-bezier(0.25, 1, 0.5, 1) forwards`;
 
                     container.appendChild(p);
-
-                    // Cleanup
                     setTimeout(() => { if(container.contains(p)) container.removeChild(p); }, duration * 1000);
                 }
             }, 100);
