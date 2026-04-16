@@ -12,6 +12,8 @@
             --gold: #C9A96E; --gold2: #E8C990; --gold-dim: rgba(201,169,110,0.12); --gold-glow: rgba(201,169,110,0.25);
             --blue: #5C8AE0; --blue2: #8AB4F8; --blue-dim: rgba(92,138,224,0.12); --blue-glow: rgba(92,138,224,0.25);
             --green: #6DA37A; --green2: #92C29E; --green-dim: rgba(109,163,122,0.12); --green-glow: rgba(109,163,122,0.25);
+            --purple: #9D7BB0; --purple2: #C4AEE0; --purple-dim: rgba(157,123,176,0.12); --purple-glow: rgba(157,123,176,0.25);
+            --red: #B07B7B; --red2: #E0AEAE; --red-dim: rgba(176,123,123,0.12); --red-glow: rgba(176,123,123,0.25);
             --border: rgba(201,169,110,0.12);
             --radius: 12px; --transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
         }
@@ -22,6 +24,8 @@
             --gold: #9A6E2A; --gold2: #C49040; --gold-dim: rgba(154,110,42,0.08); --gold-glow: rgba(154,110,42,0.2);
             --blue: #2A5B9A; --blue2: #407BC4; --blue-dim: rgba(42,91,154,0.08); --blue-glow: rgba(42,91,154,0.2);
             --green: #4A7A55; --green2: #6A9E77; --green-dim: rgba(74,122,85,0.08); --green-glow: rgba(74,122,85,0.2);
+            --purple: #6A4A7A; --purple2: #8C6BA8; --purple-dim: rgba(106,74,122,0.08); --purple-glow: rgba(106,74,122,0.2);
+            --red: #7A4A4A; --red2: #A86B6B; --red-dim: rgba(122,74,74,0.08); --red-glow: rgba(122,74,74,0.2);
             --border: rgba(154,110,42,0.15);
         }
 
@@ -51,16 +55,21 @@
         #selectionScreen { position: fixed; inset: 0; z-index: 150; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.8s ease; overflow-y: auto; padding: 40px 0; }
         #selectionScreen.active { opacity: 1; pointer-events: auto; }
         .sel-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-style: italic; color: var(--text); margin-bottom: 40px; font-weight: 300; text-align: center; z-index: 2; margin-top: auto; }
-        .sel-cards { display: flex; gap: 24px; z-index: 2; flex-wrap: wrap; justify-content: center; padding: 20px; width: 100%; max-width: 1000px; margin-bottom: auto; }
-        .sel-card { flex: 1; min-width: 260px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 48px 24px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: var(--transition); text-align: center; position: relative; overflow: hidden; text-decoration: none; }
+        .sel-cards { display: flex; gap: 24px; z-index: 2; flex-wrap: wrap; justify-content: center; padding: 20px; width: 100%; max-width: 1200px; margin-bottom: auto; }
+        .sel-card { flex: 1; min-width: 260px; max-width: 320px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 48px 24px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: var(--transition); text-align: center; position: relative; overflow: hidden; text-decoration: none; }
         .sel-card::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: var(--transition); }
         
+        /* HOVER EFFECTS */
         .sel-card.song:hover { border-color: var(--gold); box-shadow: 0 12px 40px var(--gold-glow); transform: translateY(-4px); }
         .sel-card.song:hover::before { background: radial-gradient(circle at center, var(--gold-dim) 0%, transparent 70%); opacity: 1; }
         .sel-card.prayer:hover { border-color: var(--blue); box-shadow: 0 12px 40px var(--blue-glow); transform: translateY(-4px); }
         .sel-card.prayer:hover::before { background: radial-gradient(circle at center, var(--blue-dim) 0%, transparent 70%); opacity: 1; }
         .sel-card.ignatian:hover { border-color: var(--green); box-shadow: 0 12px 40px var(--green-glow); transform: translateY(-4px); }
         .sel-card.ignatian:hover::before { background: radial-gradient(circle at center, var(--green-dim) 0%, transparent 70%); opacity: 1; }
+        .sel-card.bible:hover { border-color: var(--purple); box-shadow: 0 12px 40px var(--purple-glow); transform: translateY(-4px); }
+        .sel-card.bible:hover::before { background: radial-gradient(circle at center, var(--purple-dim) 0%, transparent 70%); opacity: 1; }
+        .sel-card.saints:hover { border-color: var(--red); box-shadow: 0 12px 40px var(--red-glow); transform: translateY(-4px); }
+        .sel-card.saints:hover::before { background: radial-gradient(circle at center, var(--red-dim) 0%, transparent 70%); opacity: 1; }
 
         .sel-icon { width: 80px; height: 80px; perspective: 600px; margin-bottom: 24px; z-index: 2; }
         .sel-icon-3d { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; animation: spinY 15s linear infinite; }
@@ -69,6 +78,8 @@
         .sel-card.song .sel-card-title { color: var(--gold); }
         .sel-card.prayer .sel-card-title { color: var(--blue); }
         .sel-card.ignatian .sel-card-title { color: var(--green); }
+        .sel-card.bible .sel-card-title { color: var(--purple); }
+        .sel-card.saints .sel-card-title { color: var(--red); }
         
         .sel-card-desc { font-size: 13px; color: var(--text2); z-index: 2; line-height: 1.5; }
 
@@ -77,7 +88,7 @@
             #selectionScreen { padding: 20px 0; justify-content: flex-start; }
             .sel-title { font-size: 28px; margin-top: 24px; margin-bottom: 24px; }
             .sel-cards { flex-direction: column; gap: 16px; padding: 0 20px; }
-            .sel-card { width: 100%; min-width: 100%; padding: 32px 20px; }
+            .sel-card { width: 100%; min-width: 100%; max-width: 100%; padding: 32px 20px; }
             .sel-icon { width: 64px; height: 64px; margin-bottom: 16px; }
         }
     </style>
@@ -119,6 +130,7 @@
     <div class="landing-bg-lines"></div>
     <h2 class="sel-title">Choose Your Path</h2>
     <div class="sel-cards">
+        
         <a href="songbook.html" class="sel-card song">
             <div class="sel-icon">
                 <div class="sel-icon-3d">
@@ -140,6 +152,31 @@
             <div class="sel-card-desc">Access the digital library of chord sheets, lyrics, and arrangements.</div>
         </a>
         
+        <a href="bible.html" class="sel-card bible">
+            <div class="sel-icon">
+                <div class="sel-icon-3d">
+                    <svg class="obj-svg" viewBox="0 0 100 140">
+                        <defs>
+                            <linearGradient id="purple-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="var(--purple2)" />
+                                <stop offset="100%" stop-color="var(--purple)" />
+                            </linearGradient>
+                            <filter id="purple-glow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="var(--purple)" flood-opacity="0.3"/>
+                            </filter>
+                        </defs>
+                        <path d="M 50 110 C 30 100, 10 110, 10 110 L 10 30 C 10 30, 30 20, 50 30 Z" fill="url(#purple-grad)" filter="url(#purple-glow)" opacity="0.9"/>
+                        <path d="M 50 110 C 70 100, 90 110, 90 110 L 90 30 C 90 30, 70 20, 50 30 Z" fill="url(#purple-grad)" filter="url(#purple-glow)"/>
+                        <path d="M 50 20 L 50 115" stroke="var(--bg)" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M 30 50 L 30 80 M 20 65 L 40 65" stroke="var(--bg)" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M 70 50 L 70 80 M 60 65 L 80 65" stroke="var(--bg)" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="sel-card-title">The Bible</div>
+            <div class="sel-card-desc">Dive into the sacred scriptures with guided readings and cross-references.</div>
+        </a>
+
         <a href="prayerbook.html" class="sel-card prayer">
             <div class="sel-icon">
                 <div class="sel-icon-3d">
@@ -163,6 +200,29 @@
             </div>
             <div class="sel-card-title">Prayer Book</div>
             <div class="sel-card-desc">Interactive chaplets, daily mysteries, and digital beads for guided prayer.</div>
+        </a>
+
+        <a href="saints.html" class="sel-card saints">
+            <div class="sel-icon">
+                <div class="sel-icon-3d">
+                    <svg class="obj-svg" viewBox="0 0 100 140">
+                        <defs>
+                            <linearGradient id="red-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="var(--red2)" />
+                                <stop offset="100%" stop-color="var(--red)" />
+                            </linearGradient>
+                            <filter id="red-glow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="var(--red)" flood-opacity="0.3"/>
+                            </filter>
+                        </defs>
+                        <path d="M 20 120 L 20 60 C 20 20, 80 20, 80 60 L 80 120 Z" fill="none" stroke="url(#red-grad)" stroke-width="4" filter="url(#red-glow)"/>
+                        <circle cx="50" cy="45" r="15" fill="none" stroke="var(--red2)" stroke-width="2"/>
+                        <path d="M 35 120 L 35 80 C 35 70, 65 70, 65 80 L 65 120 Z" fill="url(#red-grad)" filter="url(#red-glow)"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="sel-card-title">The Saints</div>
+            <div class="sel-card-desc">Discover the lives, writings, and intercessions of the holy men and women.</div>
         </a>
 
         <a href="lectio.html" class="sel-card ignatian">
@@ -190,6 +250,7 @@
             <div class="sel-card-title">Ignatian Contemplation</div>
             <div class="sel-card-desc">Enter into the scene through Lectio Divina and Visio Divina.</div>
         </a>
+
     </div>
 </div>
 
