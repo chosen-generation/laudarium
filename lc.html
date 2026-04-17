@@ -31,6 +31,10 @@
             --active-color: var(--white-lit);
             --active-glow: var(--white-glow);
             --active-rgb: 249,246,240;
+
+            /* Responsive Scaling Variables */
+            --scene-size: 520px;
+            --orb-size: 200px;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -41,7 +45,7 @@
             background: var(--bg);
             color: var(--text);
             -webkit-font-smoothing: antialiased;
-            overflow: hidden;
+            overflow: hidden; /* Prevent body scroll; handled by dashboard */
         }
 
         /* ─── AMBIENT BACKGROUND ─── */
@@ -84,7 +88,7 @@
             z-index: 10;
             display: grid;
             grid-template-columns: 1.35fr 1fr;
-            height: 100vh;
+            height: 100%;
             overflow: hidden;
         }
 
@@ -95,15 +99,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
         }
 
         /* Header */
         .site-header {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             padding: 28px 36px;
             display: flex;
             align-items: center;
@@ -165,7 +166,7 @@
         }
         .panel-heading h1 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 52px;
+            font-size: clamp(38px, 4vw, 52px);
             font-weight: 300;
             letter-spacing: -0.02em;
             line-height: 1;
@@ -180,9 +181,9 @@
         /* ─── 3D SCENE ─── */
         .scene-wrap {
             position: relative;
-            width: 520px;
-            height: 520px;
-            margin-top: 60px;
+            width: var(--scene-size);
+            height: var(--scene-size);
+            margin: 60px auto 0;
         }
         .scene {
             width: 100%;
@@ -222,24 +223,21 @@
             transition: stroke-width 0.35s, opacity 0.35s, filter 0.35s;
             opacity: 0.75;
         }
-        .season-arc:hover {
+        .season-arc:hover, .season-arc.active {
             stroke-width: 64;
             opacity: 1;
         }
         .season-arc.active {
-            stroke-width: 64;
-            opacity: 1;
             filter: brightness(1.25);
         }
 
         /* Today Marker */
         .marker-wrap {
             position: absolute;
-            width: 0;
-            height: 0;
+            width: 0; height: 0;
             top: 0; left: 0;
             transform-style: preserve-3d;
-            transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1), left 0.1s, top 0.1s;
             z-index: 10;
         }
         .marker-icon {
@@ -251,15 +249,13 @@
             transition: filter 0.8s;
         }
         .marker-icon svg {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             color: var(--active-color);
             transition: color 0.8s;
         }
         .marker-pulse {
             position: absolute;
-            width: 60px;
-            height: 60px;
+            width: 60px; height: 60px;
             border-radius: 50%;
             background: transparent;
             border: 1px solid var(--active-color);
@@ -276,31 +272,31 @@
         /* ─── CENTER ORB ─── */
         .orb-container {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 200px;
-            height: 200px;
+            top: 50%; left: 50%;
+            width: var(--orb-size);
+            height: var(--orb-size);
             transform: translate(-50%, -50%) rotateX(-52deg);
             z-index: 20;
         }
+        /* Changed inset to percentages to scale with the wrapper dynamically */
         .hud-ring {
             position: absolute;
             border-radius: 50%;
             transition: border-color 0.8s;
         }
         .hud-ring-1 {
-            inset: -16px;
+            inset: -8%;
             border: 1px dashed rgba(var(--active-rgb), 0.2);
             animation: spin-ccw 25s linear infinite;
         }
         .hud-ring-2 {
-            inset: -32px;
+            inset: -16%;
             border: 1px solid rgba(var(--active-rgb), 0.12);
             border-top-color: transparent;
             animation: spin-cw 15s linear infinite;
         }
         .hud-ring-3 {
-            inset: -52px;
+            inset: -26%;
             border: 1px dashed rgba(201,169,110,0.08);
             animation: spin-ccw 40s linear infinite;
         }
@@ -311,16 +307,9 @@
             position: absolute;
             inset: 0;
             border-radius: 50%;
-            background: radial-gradient(circle at 35% 30%,
-                rgba(255,255,255,0.08) 0%,
-                rgba(5,4,3,0.6) 60%,
-                rgba(0,0,0,0.9) 100%
-            );
+            background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.08) 0%, rgba(5,4,3,0.6) 60%, rgba(0,0,0,0.9) 100%);
             border: 1px solid rgba(var(--active-rgb), 0.1);
-            box-shadow:
-                inset 0 0 60px rgba(0,0,0,0.9),
-                0 0 50px rgba(var(--active-rgb), 0.12),
-                0 0 100px rgba(var(--active-rgb), 0.06);
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.9), 0 0 50px rgba(var(--active-rgb), 0.12), 0 0 100px rgba(var(--active-rgb), 0.06);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -328,6 +317,7 @@
             text-align: center;
             transition: border-color 0.8s, box-shadow 0.8s;
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
         }
         .orb-label {
             font-size: 8px;
@@ -338,7 +328,7 @@
         }
         .orb-season {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 26px;
+            font-size: clamp(20px, 3vw, 26px);
             font-style: italic;
             color: var(--active-color);
             transition: color 0.8s;
@@ -355,15 +345,12 @@
             padding: 48px 44px;
             background: linear-gradient(135deg, rgba(10,8,6,0.95) 0%, rgba(5,4,3,1) 100%);
             position: relative;
-            overflow: hidden;
         }
         .info-panel::before {
             content: '';
             position: absolute;
-            top: 0;
-            right: 0;
-            width: 280px;
-            height: 280px;
+            top: 0; right: 0;
+            width: 280px; height: 280px;
             background: radial-gradient(circle, rgba(var(--active-rgb), 0.04) 0%, transparent 70%);
             transition: background 0.8s;
             pointer-events: none;
@@ -378,6 +365,7 @@
             border-radius: var(--radius);
             padding: 40px;
             backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             transition: border-top-color 0.8s;
             overflow: hidden;
         }
@@ -385,10 +373,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at top right,
-                rgba(var(--active-rgb), 0.06) 0%,
-                transparent 60%
-            );
+            background: radial-gradient(circle at top right, rgba(var(--active-rgb), 0.06) 0%, transparent 60%);
             transition: background 0.8s;
             pointer-events: none;
         }
@@ -405,15 +390,14 @@
         }
         .card-eyebrow::before {
             content: '';
-            width: 24px;
-            height: 1px;
+            width: 24px; height: 1px;
             background: var(--gold);
             opacity: 0.5;
         }
 
         .card-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 38px;
+            font-size: clamp(28px, 3vw, 38px);
             font-weight: 400;
             line-height: 1.15;
             margin-bottom: 32px;
@@ -421,8 +405,7 @@
         }
 
         .divider {
-            width: 100%;
-            height: 1px;
+            width: 100%; height: 1px;
             background: var(--border);
             margin-bottom: 28px;
         }
@@ -432,7 +415,6 @@
             grid-template-columns: 1fr 1fr;
             gap: 28px;
         }
-        .meta-item {}
         .meta-label {
             font-size: 9px;
             letter-spacing: 0.3em;
@@ -490,24 +472,66 @@
             background: rgba(var(--active-rgb), 0.07);
         }
         .legend-dot {
-            width: 8px;
-            height: 8px;
+            width: 8px; height: 8px;
             border-radius: 50%;
             flex-shrink: 0;
         }
 
-        /* ─── RESPONSIVE ─── */
+        /* ─── RESPONSIVE UPGRADES ─── */
+
+        /* Tablets & Standard Laptops */
         @media (max-width: 1100px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-                grid-template-rows: 55vh 45vh;
-                overflow-y: auto;
+            :root {
+                --scene-size: 400px;
+                --orb-size: 160px;
             }
-            html, body { overflow: auto; }
-            .info-panel { border-left: none; border-top: 1px solid var(--border); padding: 32px; }
-            .scene-wrap { width: 380px; height: 380px; margin-top: 70px; }
-            .panel-heading h1 { font-size: 38px; }
-            .card-title { font-size: 28px; }
+            .dashboard {
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto;
+                height: 100%;
+            }
+            .site-header {
+                position: fixed; /* Stick navigation for mobile scroll */
+                background: rgba(10, 8, 6, 0.65);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+            }
+            .visual-panel {
+                min-height: 100vh; /* Fill first viewport */
+                padding: 120px 20px 60px; 
+                justify-content: flex-start;
+            }
+            .panel-heading {
+                position: relative; /* Prevent overlap on flex shrink */
+                top: 0;
+                margin-bottom: 30px;
+            }
+            .info-panel {
+                border-left: none;
+                border-top: 1px solid var(--border);
+                padding: 60px 40px;
+            }
+        }
+
+        /* Mobile Phones */
+        @media (max-width: 600px) {
+            :root {
+                --scene-size: 300px;
+                --orb-size: 120px;
+            }
+            .site-header { padding: 20px; }
+            .visual-panel {
+                min-height: auto;
+                padding-top: 100px;
+            }
+            .scene-wrap { margin-top: 20px; }
+            .info-panel { padding: 40px 20px; }
+            .card { padding: 24px; }
+            .meta-grid { 
+                grid-template-columns: 1fr; /* Stack meta info vertically */
+                gap: 20px; 
+            }
         }
     </style>
 </head>
@@ -518,7 +542,6 @@
 <div class="vignette"></div>
 
 <div class="dashboard">
-    <!-- LEFT -->
     <div class="visual-panel">
         <div class="site-header">
             <a href="index.html" class="back-btn">← Escape</a>
@@ -536,16 +559,13 @@
         <div class="scene-wrap">
             <div class="scene">
                 <div class="pivot" id="pivot">
-                    <!-- Ring layers rendered by JS -->
                     <svg class="ring-layer ring-base" viewBox="0 0 500 500" id="ring-bottom" xmlns="http://www.w3.org/2000/svg"></svg>
                     <svg class="ring-layer ring-main" viewBox="0 0 500 500" id="ring-top" xmlns="http://www.w3.org/2000/svg"></svg>
 
-                    <!-- Marker -->
                     <div class="marker-wrap" id="marker">
                         <div class="marker-pulse"></div>
                         <div class="marker-icon">
                             <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <!-- Ichthys / fish -->
                                 <ellipse cx="24" cy="24" rx="16" ry="10" />
                                 <path d="M 40,24 L 48,18 M 40,24 L 48,30" />
                             </svg>
@@ -554,7 +574,6 @@
                 </div>
             </div>
 
-            <!-- Center Orb (outside pivot so not tilted) -->
             <div class="orb-container">
                 <div class="hud-ring hud-ring-3"></div>
                 <div class="hud-ring hud-ring-2"></div>
@@ -567,7 +586,6 @@
         </div>
     </div>
 
-    <!-- RIGHT -->
     <div class="info-panel">
         <div class="card">
             <div class="card-eyebrow" id="card-eyebrow">Today · Apr 17, 2026</div>
@@ -605,62 +623,14 @@
    DATA
 ══════════════════════════════════════════════════ */
 const seasons = [
-    {
-        id: 'advent',      name: 'Advent',
-        colorVar: '--purple',  glowVar: '--purple-glow',
-        colorHex: '#9D7BB0', rgbStr: '157,123,176',
-        start: 0,   end: 25,
-        info: { color: 'Purple / Violet', week: 'Week I–IV', readings: 'Is 40:1–11\nLk 3:1–6\nRv 22:20' }
-    },
-    {
-        id: 'christmas',   name: 'Christmas',
-        colorVar: '--white-lit',  glowVar: '--white-glow',
-        colorHex: '#F9F6F0', rgbStr: '249,246,240',
-        start: 25,  end: 46,
-        info: { color: 'White / Gold', week: 'Octave', readings: 'Is 9:2–7\nTt 2:11–14\nLk 2:1–14' }
-    },
-    {
-        id: 'epiphany',    name: 'Ordinary Time I',
-        colorVar: '--green', glowVar: '--green-glow',
-        colorHex: '#6DA37A', rgbStr: '109,163,122',
-        start: 46,  end: 80,
-        info: { color: 'Green', week: 'Weeks I–VI', readings: 'Is 60:1–6\nEph 3:2–3\nMt 2:1–12' }
-    },
-    {
-        id: 'lent',        name: 'Lent',
-        colorVar: '--purple', glowVar: '--purple-glow',
-        colorHex: '#9D7BB0', rgbStr: '157,123,176',
-        start: 80,  end: 118,
-        info: { color: 'Purple / Violet', week: 'Weeks I–V', readings: 'Jl 2:12–18\n2Co 5:20\nMt 6:1–6' }
-    },
-    {
-        id: 'holyweek',    name: 'Holy Week',
-        colorVar: '--red',   glowVar: '--red-glow',
-        colorHex: '#B07B7B', rgbStr: '176,123,123',
-        start: 118, end: 126,
-        info: { color: 'Red / Scarlet', week: 'Passion Week', readings: 'Is 50:4–7\nPh 2:6–11\nMk 14–15' }
-    },
-    {
-        id: 'easter',      name: 'Easter',
-        colorVar: '--white-lit', glowVar: '--white-glow',
-        colorHex: '#F9F6F0', rgbStr: '249,246,240',
-        start: 126, end: 173,
-        info: { color: 'White / Gold', week: 'Week II', readings: 'Acts 4:1–12\nPs 118\nJn 21:1–14' }
-    },
-    {
-        id: 'pentecost',   name: 'Pentecost',
-        colorVar: '--red',   glowVar: '--red-glow',
-        colorHex: '#B07B7B', rgbStr: '176,123,123',
-        start: 173, end: 178,
-        info: { color: 'Red / Fire', week: 'Pentecost Sunday', readings: 'Acts 2:1–11\n1Co 12:3\nJn 20:19–23' }
-    },
-    {
-        id: 'ordtime',     name: 'Ordinary Time II',
-        colorVar: '--green', glowVar: '--green-glow',
-        colorHex: '#6DA37A', rgbStr: '109,163,122',
-        start: 178, end: 360,
-        info: { color: 'Green', week: 'Weeks IX–XXXIV', readings: 'Rm 5:12–15\n1Co 15:21\nMt 13:1–23' }
-    }
+    { id: 'advent',    name: 'Advent',           colorVar: '--purple',    glowVar: '--purple-glow', colorHex: '#9D7BB0', rgbStr: '157,123,176', start: 0,   end: 25,  info: { color: 'Purple / Violet', week: 'Week I–IV', readings: 'Is 40:1–11\nLk 3:1–6\nRv 22:20' } },
+    { id: 'christmas', name: 'Christmas',        colorVar: '--white-lit', glowVar: '--white-glow', colorHex: '#F9F6F0', rgbStr: '249,246,240', start: 25,  end: 46,  info: { color: 'White / Gold', week: 'Octave', readings: 'Is 9:2–7\nTt 2:11–14\nLk 2:1–14' } },
+    { id: 'epiphany',  name: 'Ordinary Time I',  colorVar: '--green',     glowVar: '--green-glow', colorHex: '#6DA37A', rgbStr: '109,163,122', start: 46,  end: 80,  info: { color: 'Green', week: 'Weeks I–VI', readings: 'Is 60:1–6\nEph 3:2–3\nMt 2:1–12' } },
+    { id: 'lent',      name: 'Lent',             colorVar: '--purple',    glowVar: '--purple-glow', colorHex: '#9D7BB0', rgbStr: '157,123,176', start: 80,  end: 118, info: { color: 'Purple / Violet', week: 'Weeks I–V', readings: 'Jl 2:12–18\n2Co 5:20\nMt 6:1–6' } },
+    { id: 'holyweek',  name: 'Holy Week',        colorVar: '--red',       glowVar: '--red-glow',   colorHex: '#B07B7B', rgbStr: '176,123,123', start: 118, end: 126, info: { color: 'Red / Scarlet', week: 'Passion Week', readings: 'Is 50:4–7\nPh 2:6–11\nMk 14–15' } },
+    { id: 'easter',    name: 'Easter',           colorVar: '--white-lit', glowVar: '--white-glow', colorHex: '#F9F6F0', rgbStr: '249,246,240', start: 126, end: 173, info: { color: 'White / Gold', week: 'Week II', readings: 'Acts 4:1–12\nPs 118\nJn 21:1–14' } },
+    { id: 'pentecost', name: 'Pentecost',        colorVar: '--red',       glowVar: '--red-glow',   colorHex: '#B07B7B', rgbStr: '176,123,123', start: 173, end: 178, info: { color: 'Red / Fire', week: 'Pentecost Sunday', readings: 'Acts 2:1–11\n1Co 12:3\nJn 20:19–23' } },
+    { id: 'ordtime',   name: 'Ordinary Time II', colorVar: '--green',     glowVar: '--green-glow', colorHex: '#6DA37A', rgbStr: '109,163,122', start: 178, end: 360, info: { color: 'Green', week: 'Weeks IX–XXXIV', readings: 'Rm 5:12–15\n1Co 15:21\nMt 13:1–23' } }
 ];
 
 const todaySeason = seasons.find(s => s.id === 'easter');
@@ -686,7 +656,7 @@ function arcPath(startDeg, endDeg) {
 }
 
 /* ═══════════════════════════════════════════════
-   RENDER
+   RENDER & RESPONSIVENESS
 ══════════════════════════════════════════════════ */
 function buildRings() {
     const top    = document.getElementById('ring-top');
@@ -730,8 +700,10 @@ function buildLegend() {
 
 function placeMarker() {
     const pos = polarToXY(todayAngleDeg);
-    // Scale from SVG coords (500px) to scene-wrap coords (520px)
-    const scale = 520 / 500;
+    // Dynamically query actual screen size to retain accurate 3D geometry
+    const wrap = document.querySelector('.scene-wrap');
+    const scale = wrap.offsetWidth / 500; 
+    
     const marker = document.getElementById('marker');
     marker.style.left  = (pos.x * scale) + 'px';
     marker.style.top   = (pos.y * scale) + 'px';
@@ -764,7 +736,7 @@ function setActiveSeason(s) {
 }
 
 /* ═══════════════════════════════════════════════
-   INIT
+   INIT & EVENT LISTENERS
 ══════════════════════════════════════════════════ */
 function init() {
     buildRings();
@@ -774,6 +746,9 @@ function init() {
 
     // Set today's card title
     document.getElementById('card-title').textContent = 'Friday of the Second Week of Easter';
+
+    // Recalculate 3D elements dynamically whenever resizing window or flipping phone
+    window.addEventListener('resize', placeMarker);
 }
 
 init();
