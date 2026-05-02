@@ -70,6 +70,8 @@
         .icon-btn { width: 36px; height: 36px; flex-shrink: 0; border-radius: var(--radius-sm); border: 1px solid var(--border); background: transparent; color: var(--text2); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); outline: none; }
         .icon-btn:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
         .icon-btn svg { width: 16px; height: 16px; }
+        .icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .icon-btn:disabled:hover { background: transparent; color: var(--text2); }
         
         .search-wrap { position: relative; }
         .search-ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; opacity: 0.35; pointer-events: none; }
@@ -115,6 +117,8 @@
         .t-btn:hover { background: var(--surface3); color: var(--text); }
         .t-btn.on { background: var(--text); color: var(--bg); }
         .t-btn.gold-on { background: var(--gold); color: var(--bg); animation: goldPulse 2s infinite; }
+        .t-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+        .t-btn:disabled:hover { background: transparent; color: var(--text2); }
         @keyframes goldPulse { 0%,100%{ box-shadow: 0 0 0 0 var(--gold-glow); } 50%{ box-shadow: 0 0 0 8px transparent; } }
         .t-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; margin: 0 2px; }
         
@@ -152,9 +156,14 @@
         .pdf-page-wrap { position: relative; box-shadow: var(--shadow-card); border-radius: var(--radius); overflow: hidden; background: white; flex-shrink: 0; transition: box-shadow 0.3s; }
         .pdf-page-wrap canvas { display: block; max-width: 100%; height: auto !important; }
         
-        .draw-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; mix-blend-mode: multiply; }
+        .draw-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+        /* Lasso cursor */
+        .lasso-mode .draw-layer { cursor: default; }
         .pan-mode .draw-layer { pointer-events: none !important; cursor: default; }
 
+        /* Lasso selection overlay - shown on top of draw layer */
+        .lasso-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
+        
         #emptyState { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; pointer-events: none; z-index: 2; text-align: center; transition: opacity 0.4s; }
         #emptyState.gone { opacity: 0; }
         .es-cross-scene { width: 72px; height: 100px; perspective: 600px; margin-bottom: 40px; opacity: 0.18; }
@@ -312,7 +321,22 @@
                     <button class="t-btn" id="btnPen" onclick="setTool('pen')" title="Pen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg></button>
                     <button class="t-btn" id="btnHighlight" onclick="setTool('highlight')" title="Highlight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></button>
                     <button class="t-btn" id="btnEraser" onclick="setTool('eraser')" title="Eraser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 20H7L3 16C2.5 15.5 2.5 14.5 3 14L13 4C13.5 3.5 14.5 3.5 15 4L20 9C20.5 9.5 20.5 10.5 20 11L11 20"/><path d="M16 8L10 14"/></svg></button>
+                    <button class="t-btn" id="btnLasso" onclick="setTool('lasso')" title="Lasso Select & Move">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 3C7 3 3 7 3 12C3 17 7 21 12 21C14 21 15.5 20.5 16.5 19.5" stroke-dasharray="3 2"/>
+                            <path d="M15 9l3 3-3 3M18 12h-6"/>
+                        </svg>
+                    </button>
                     
+                    <div class="t-sep"></div>
+                    <!-- Undo / Redo -->
+                    <button class="t-btn" id="btnUndo" onclick="undoAction()" title="Undo (Ctrl+Z)" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                    </button>
+                    <button class="t-btn" id="btnRedo" onclick="redoAction()" title="Redo (Ctrl+Y)" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg>
+                    </button>
+
                     <div class="t-sep"></div>
                     <div id="thickBottom" style="display:flex;align-items:center;gap:2px"></div>
                     <div class="t-sep"></div>
@@ -358,9 +382,9 @@
     let allSongs = [], groupedSongs = {};
     let currentFile = null, pdfDoc = null;
     let currentTool = 'pan';
-    let currentColor = '#C9A96E';
+    let currentColor = '#1A1A1A'; // Default to visible dark ink
     let currentThickness = 3;
-    let drawCtxs = {}, isDrawing = false;
+    let drawCtxs = {}, lassoCvss = {}, isDrawing = false;
     let twoUpMode = false;
     let currentPage = 1, totalPages = 0;
     let currentNotes = {};
@@ -369,7 +393,65 @@
     let scrollSpeed = 1; 
     let scrollAccumulator = 0;
 
-   const patienceVerses = [
+    // ─── UNDO / REDO HISTORY ─────────────────────────────────────────────────
+    // Per-page stacks: { [pageNum]: ImageData[] }
+    let undoStacks = {};
+    let redoStacks = {};
+    const MAX_HISTORY = 40;
+
+    function snapshotPage(pageNum) {
+        const ctx = drawCtxs[pageNum];
+        if (!ctx) return;
+        if (!undoStacks[pageNum]) undoStacks[pageNum] = [];
+        if (!redoStacks[pageNum]) redoStacks[pageNum] = [];
+        undoStacks[pageNum].push(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height));
+        if (undoStacks[pageNum].length > MAX_HISTORY) undoStacks[pageNum].shift();
+        redoStacks[pageNum] = []; // clear redo on new action
+        updateUndoRedoBtns();
+    }
+
+    function undoAction() {
+        const ctx = drawCtxs[currentPage];
+        if (!ctx || !undoStacks[currentPage] || undoStacks[currentPage].length === 0) return;
+        if (!redoStacks[currentPage]) redoStacks[currentPage] = [];
+        redoStacks[currentPage].push(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height));
+        const state = undoStacks[currentPage].pop();
+        ctx.putImageData(state, 0, 0);
+        updateUndoRedoBtns();
+    }
+
+    function redoAction() {
+        const ctx = drawCtxs[currentPage];
+        if (!ctx || !redoStacks[currentPage] || redoStacks[currentPage].length === 0) return;
+        if (!undoStacks[currentPage]) undoStacks[currentPage] = [];
+        undoStacks[currentPage].push(ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height));
+        const state = redoStacks[currentPage].pop();
+        ctx.putImageData(state, 0, 0);
+        updateUndoRedoBtns();
+    }
+
+    function updateUndoRedoBtns() {
+        const undoBtn = document.getElementById('btnUndo');
+        const redoBtn = document.getElementById('btnRedo');
+        const canUndo = undoStacks[currentPage] && undoStacks[currentPage].length > 0;
+        const canRedo = redoStacks[currentPage] && redoStacks[currentPage].length > 0;
+        if (undoBtn) { undoBtn.disabled = !canUndo; }
+        if (redoBtn) { redoBtn.disabled = !canRedo; }
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            if (e.key === 'z' && !e.shiftKey) { e.preventDefault(); undoAction(); }
+            if (e.key === 'y' || (e.key === 'z' && e.shiftKey)) { e.preventDefault(); redoAction(); }
+        }
+    });
+
+    // ─── LASSO STATE ─────────────────────────────────────────────────────────
+    let lassoState = {}; // per canvas: { points, bbox, cutData, phase }
+    // phase: 'idle' | 'drawing' | 'selected' | 'moving'
+
+    const patienceVerses = [
         { t: "Be still before the Lord and wait patiently for Him.", r: "Psalm 37:7" },
         { t: "But if we hope for what we do not yet have, we wait for it patiently.", r: "Romans 8:25" },
         { t: "The Lord is good to those whose hope is in Him, to the one who seeks Him.", r: "Lamentations 3:25" },
@@ -377,51 +459,26 @@
         { t: "Wait for the Lord; be strong and take heart and wait for the Lord.", r: "Psalm 27:14" },
         { t: "The fruit of the Spirit is love, joy, peace, and patience.", r: "Galatians 5:22" },
         { t: "If you seek patience, you will find no better example than the Cross.", r: "St. Thomas Aquinas" },
-        { t: "A person’s wisdom yields patience; it is to one’s glory to overlook an offense.", r: "Proverbs 19:11" }
+        { t: "A person's wisdom yields patience; it is to one's glory to overlook an offense.", r: "Proverbs 19:11" }
     ];
 
     function getJugLoaderHTML() {
         const v = patienceVerses[Math.floor(Math.random() * patienceVerses.length)];
-        return `
-            <div class="loader-wrap">
-                <div class="loader-icon-wrap">
-                    <svg class="loader-svg" viewBox="-8 -8 40 40" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="5" r="4" fill="var(--text)" stroke="none" class="host-glow" />
-                        <path d="M6 11 C6 16, 9 17, 12 17 C15 17, 18 16, 18 11 Z" fill="var(--surface3)"/>
-                        <path d="M12 17 v6" />
-                        <path d="M8 23 h8" />
-                    </svg>
-                </div>
-                <div class="patience-text">"${v.t}"</div>
-                <div class="patience-ref">— ${v.r}</div>
-            </div>
-        `;
+        return `<div class="loader-wrap"><div class="loader-icon-wrap"><svg class="loader-svg" viewBox="-8 -8 40 40" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="4" fill="var(--text)" stroke="none" class="host-glow" /><path d="M6 11 C6 16, 9 17, 12 17 C15 17, 18 16, 18 11 Z" fill="var(--surface3)"/><path d="M12 17 v6" /><path d="M8 23 h8" /></svg></div><div class="patience-text">"${v.t}"</div><div class="patience-ref">— ${v.r}</div></div>`;
     }
 
     function getFishLoaderHTML() {
         const v = patienceVerses[Math.floor(Math.random() * patienceVerses.length)];
-        return `
-            <div class="loader-wrap">
-                <div class="loader-icon-wrap">
-                    <svg class="loader-svg flame-flicker" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22c4.5 0 8-3.5 8-8 0-4.5-3-8-8-12-5 4-8 7.5-8 12 0 4.5 3.5 8 8 8z" fill="var(--gold-dim)"/>
-                        <path d="M12 22c2.5 0 4.5-2 4.5-4.5 0-2.5-1.5-4.5-4.5-7.5-3 3-4.5 5-4.5 7.5C7.5 20 9.5 22 12 22z" fill="var(--gold)"/>
-                    </svg>
-                </div>
-                <div class="patience-text">"${v.t}"</div>
-                <div class="patience-ref">— ${v.r}</div>
-            </div>
-        `;
+        return `<div class="loader-wrap"><div class="loader-icon-wrap"><svg class="loader-svg flame-flicker" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4.5 0 8-3.5 8-8 0-4.5-3-8-8-12-5 4-8 7.5-8 12 0 4.5 3.5 8 8 8z" fill="var(--gold-dim)"/><path d="M12 22c2.5 0 4.5-2 4.5-4.5 0-2.5-1.5-4.5-4.5-7.5-3 3-4.5 5-4.5 7.5C7.5 20 9.5 22 12 22z" fill="var(--gold)"/></svg></div><div class="patience-text">"${v.t}"</div><div class="patience-ref">— ${v.r}</div></div>`;
     }
 
-     const verses = [
+    const verses = [
         { text: "Come, let us bow down in worship, let us kneel before the Lord our Maker.", ref: "Psalm 95:6" },
         { text: "Worship the Lord with gladness; come before him with joyful songs.", ref: "Psalm 100:2" },
         { text: "Let everything that has breath praise the Lord. Praise the Lord.", ref: "Psalm 150:6" },
-        { text: "Let everything that has breath praise the Lord. Praise the Lord.", ref: "Psalm 150:6" },
         { text: "God is spirit, and his worshipers must worship in the Spirit and in truth.", ref: "John 4:24" },
         { text: "Sing to the Lord a new song; sing to the Lord, all the earth.", ref: "Psalm 96:1" },
-        { text: "Shout for joy to the Lord, all the earth. Worship the Lord with gladness; come before him with joyful songs.", ref: "Psalm 100:1-2" },
+        { text: "Shout for joy to the Lord, all the earth.", ref: "Psalm 100:1" },
         { text: "I will praise you, Lord, with all my heart; I will tell of all your wonderful deeds.", ref: "Psalm 9:1" }
     ];
     
@@ -429,7 +486,7 @@
     document.getElementById('esVerse').textContent = `"${v.text}"`;
     document.getElementById('esRef').textContent = `— ${v.ref}`;
 
-    // PASSWORD LOGIN LOGIC
+    // PASSWORD LOGIN
     document.getElementById('passwordInput').addEventListener('keypress', function (e) {
         if (e.key === 'Enter') checkPassword();
     });
@@ -437,12 +494,10 @@
     function checkPassword() {
         const input = document.getElementById('passwordInput').value;
         const errorMsg = document.getElementById('loginError');
-        
         if (input === 'stmichael') {
             document.getElementById('loginScreen').style.opacity = '0';
             setTimeout(() => {
                 document.getElementById('loginScreen').style.display = 'none';
-                // Initialize app after successful login
                 openSidebar();
                 loadLibrary();
             }, 400); 
@@ -529,12 +584,15 @@
         document.getElementById('folderListOptionsMove').innerHTML = optionsHtml;
     }
 
-    const TOOL_BTNS = { pan: ['btnPan'], pen: ['btnPen'], highlight: ['btnHighlight'], eraser: ['btnEraser'] };
+    const TOOL_BTNS = { pan: ['btnPan'], pen: ['btnPen'], highlight: ['btnHighlight'], eraser: ['btnEraser'], lasso: ['btnLasso'] };
     
     function updateSwatches() {
         const isHighlighter = currentTool === 'highlight';
-        const colors = isHighlighter ? ['#FDE047', '#F87171', '#4ADE80', '#60A5FA'] : ['#1A1A1A', '#C9A96E', '#1E3A8A', '#991B1B'];
-        if (!colors.includes(currentColor)) currentColor = colors[isHighlighter ? 0 : 1];
+        // Pen colors: dark/visible options — black is first/default
+        const colors = isHighlighter
+            ? ['#FDE047', '#F87171', '#4ADE80', '#60A5FA']
+            : ['#1A1A1A', '#C9A96E', '#1E3A8A', '#CC2222'];
+        if (!colors.includes(currentColor)) currentColor = colors[0];
         const html = colors.map(c => `<div class="swatch ${c === currentColor ? 'on' : ''}" style="background:${c}" onclick="setColor('${c}')"></div>`).join('');
         const elSwatchesBottom = document.getElementById('swatchesBottom');
         if (elSwatchesBottom) elSwatchesBottom.innerHTML = html;
@@ -545,6 +603,10 @@
     }
 
     function setTool(t) {
+        // If switching away from lasso, clear any active selections
+        if (currentTool === 'lasso' && t !== 'lasso') {
+            commitAllLassoSelections();
+        }
         currentTool = t;
         Object.keys(TOOL_BTNS).forEach(key => { 
             TOOL_BTNS[key].forEach(id => { 
@@ -552,21 +614,375 @@
                 if (btn) btn.classList.toggle('on', key === t); 
             }); 
         });
-        document.getElementById('canvasWrap').classList.toggle('pan-mode', t === 'pan');
+        const wrap = document.getElementById('canvasWrap');
+        wrap.classList.toggle('pan-mode', t === 'pan');
+        wrap.classList.toggle('lasso-mode', t === 'lasso');
         updateSwatches();
     }
 
     function setColor(c) {
         currentColor = c; updateSwatches();
-        if (currentTool === 'pan' || currentTool === 'eraser') setTool(currentTool === 'highlight' ? 'highlight' : 'pen');
     }
 
     function setThickness(t) {
         currentThickness = t; updateSwatches();
-        if (currentTool === 'pan' || currentTool === 'eraser') setTool(currentTool === 'highlight' ? 'highlight' : 'pen');
     }
 
     updateSwatches();
+
+    // ─── LASSO HELPERS ────────────────────────────────────────────────────────
+
+    function getLassoState(pageNum) {
+        if (!lassoState[pageNum]) {
+            lassoState[pageNum] = { phase: 'idle', points: [], bbox: null, cutData: null, offsetX: 0, offsetY: 0, dragStartX: 0, dragStartY: 0 };
+        }
+        return lassoState[pageNum];
+    }
+
+    function drawLassoOverlay(lassoCvs, state) {
+        const ctx = lassoCvs.getContext('2d');
+        ctx.clearRect(0, 0, lassoCvs.width, lassoCvs.height);
+        if (!state || state.points.length < 2) return;
+
+        ctx.save();
+        ctx.setLineDash([6, 4]);
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#4A90E2';
+        ctx.shadowColor = '#4A90E2';
+        ctx.shadowBlur = 4;
+        ctx.beginPath();
+        ctx.moveTo(state.points[0].x, state.points[0].y);
+        for (let i = 1; i < state.points.length; i++) {
+            ctx.lineTo(state.points[i].x, state.points[i].y);
+        }
+        if (state.phase === 'selected' || state.phase === 'moving') {
+            ctx.closePath();
+            ctx.fillStyle = 'rgba(74,144,226,0.08)';
+            ctx.fill();
+        }
+        ctx.stroke();
+        ctx.restore();
+
+        // Draw the cut content at its current offset
+        if (state.cutData && state.bbox) {
+            ctx.save();
+            ctx.translate(state.offsetX, state.offsetY);
+            // Re-create ImageBitmap from cutData inline
+            const tmp = document.createElement('canvas');
+            tmp.width = state.cutData.width;
+            tmp.height = state.cutData.height;
+            tmp.getContext('2d').putImageData(state.cutData, 0, 0);
+            ctx.drawImage(tmp, state.bbox.x, state.bbox.y);
+            ctx.restore();
+        }
+    }
+
+    function pointInPolygon(px, py, points) {
+        let inside = false;
+        for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
+            const xi = points[i].x, yi = points[i].y;
+            const xj = points[j].x, yj = points[j].y;
+            if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
+                inside = !inside;
+            }
+        }
+        return inside;
+    }
+
+    function getBoundingBox(points) {
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        points.forEach(p => {
+            if (p.x < minX) minX = p.x; if (p.y < minY) minY = p.y;
+            if (p.x > maxX) maxX = p.x; if (p.y > maxY) maxY = p.y;
+        });
+        return { x: Math.floor(minX), y: Math.floor(minY), w: Math.ceil(maxX - minX) + 1, h: Math.ceil(maxY - minY) + 1 };
+    }
+
+    function commitLassoSelection(pageNum) {
+        const state = getLassoState(pageNum);
+        if (state.phase !== 'selected' && state.phase !== 'moving') return;
+        if (!state.cutData || !state.bbox) { state.phase = 'idle'; state.points = []; return; }
+
+        const ctx = drawCtxs[pageNum];
+        if (!ctx) return;
+
+        // Snapshot before committing
+        snapshotPage(pageNum);
+
+        // Stamp the cut content at new position
+        const tmp = document.createElement('canvas');
+        tmp.width = state.cutData.width;
+        tmp.height = state.cutData.height;
+        tmp.getContext('2d').putImageData(state.cutData, 0, 0);
+        ctx.drawImage(tmp, state.bbox.x + state.offsetX, state.bbox.y + state.offsetY);
+
+        // Clear lasso overlay
+        const lassoCvs = lassoCvss[pageNum];
+        if (lassoCvs) lassoCvs.getContext('2d').clearRect(0, 0, lassoCvs.width, lassoCvs.height);
+
+        state.phase = 'idle'; state.points = []; state.cutData = null; state.bbox = null; state.offsetX = 0; state.offsetY = 0;
+    }
+
+    function commitAllLassoSelections() {
+        for (const pg in lassoState) {
+            commitLassoSelection(parseInt(pg));
+        }
+    }
+
+    function attachLasso(canvas, pageNum) {
+        const lassoCvs = lassoCvss[pageNum];
+        if (!lassoCvs) return;
+
+        const pos = (e) => {
+            const r = canvas.getBoundingClientRect();
+            const cx = e.touches ? e.touches[0].clientX : e.clientX;
+            const cy = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: (cx - r.left) * (canvas.width / r.width), y: (cy - r.top) * (canvas.height / r.height) };
+        };
+
+        let animFrame = null;
+
+        const redraw = (state) => {
+            if (animFrame) cancelAnimationFrame(animFrame);
+            animFrame = requestAnimationFrame(() => drawLassoOverlay(lassoCvs, state));
+        };
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (currentTool !== 'lasso') return;
+            const { x, y } = pos(e);
+            const state = getLassoState(pageNum);
+
+            if (state.phase === 'selected' || state.phase === 'moving') {
+                // Check if click is inside lasso — if so start move, else commit and start new
+                if (state.points.length > 0) {
+                    const adjustedPoints = state.points.map(p => ({ x: p.x + state.offsetX, y: p.y + state.offsetY }));
+                    if (pointInPolygon(x, y, adjustedPoints)) {
+                        state.phase = 'moving';
+                        state.dragStartX = x; state.dragStartY = y;
+                        canvas.style.cursor = 'grabbing';
+                        e.preventDefault();
+                        return;
+                    } else {
+                        commitLassoSelection(pageNum);
+                    }
+                }
+            }
+            // Start new lasso
+            state.phase = 'drawing';
+            state.points = [{ x, y }];
+            state.offsetX = 0; state.offsetY = 0;
+            state.cutData = null; state.bbox = null;
+            canvas.style.cursor = 'crosshair';
+            if (e.cancelable) e.preventDefault();
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (currentTool !== 'lasso') return;
+            const { x, y } = pos(e);
+            const state = getLassoState(pageNum);
+
+            if (state.phase === 'drawing') {
+                state.points.push({ x, y });
+                redraw(state);
+            } else if (state.phase === 'moving') {
+                const dx = x - state.dragStartX;
+                const dy = y - state.dragStartY;
+                state.offsetX += dx; state.offsetY += dy;
+                state.dragStartX = x; state.dragStartY = y;
+                // Move lasso points too for hit testing
+                state.points = state.points.map(p => ({ x: p.x + dx, y: p.y + dy }));
+                redraw(state);
+            }
+            if (e.cancelable) e.preventDefault();
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (currentTool !== 'lasso') return;
+            const state = getLassoState(pageNum);
+
+            if (state.phase === 'drawing' && state.points.length > 5) {
+                state.phase = 'selected';
+                // Close the lasso visually
+                state.points.push(state.points[0]);
+
+                const bbox = getBoundingBox(state.points);
+                state.bbox = bbox;
+
+                // Cut pixels within the lasso from the draw canvas
+                const ctx = drawCtxs[pageNum];
+                if (ctx) {
+                    snapshotPage(pageNum); // snapshot BEFORE cut
+                    const fullData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    const cutCanvas = document.createElement('canvas');
+                    cutCanvas.width = ctx.canvas.width;
+                    cutCanvas.height = ctx.canvas.height;
+                    const cutCtx = cutCanvas.getContext('2d');
+                    const cutData = cutCtx.createImageData(ctx.canvas.width, ctx.canvas.height);
+
+                    for (let py = bbox.y; py < bbox.y + bbox.h && py < ctx.canvas.height; py++) {
+                        for (let px = bbox.x; px < bbox.x + bbox.w && px < ctx.canvas.width; px++) {
+                            if (pointInPolygon(px, py, state.points)) {
+                                const idx = (py * ctx.canvas.width + px) * 4;
+                                cutData.data[idx] = fullData.data[idx];
+                                cutData.data[idx+1] = fullData.data[idx+1];
+                                cutData.data[idx+2] = fullData.data[idx+2];
+                                cutData.data[idx+3] = fullData.data[idx+3];
+                                // Erase from original
+                                fullData.data[idx+3] = 0;
+                            }
+                        }
+                    }
+                    ctx.putImageData(fullData, 0, 0);
+                    state.cutData = cutData;
+                    state.offsetX = 0; state.offsetY = 0;
+                }
+                redraw(state);
+                canvas.style.cursor = 'grab';
+            } else if (state.phase === 'moving') {
+                state.phase = 'selected';
+                canvas.style.cursor = 'grab';
+                redraw(state);
+            } else if (state.phase === 'drawing') {
+                // Too few points — reset
+                state.phase = 'idle'; state.points = [];
+                lassoCvs.getContext('2d').clearRect(0, 0, lassoCvs.width, lassoCvs.height);
+            }
+        });
+
+        // Touch support for lasso
+        canvas.addEventListener('touchstart', (e) => {
+            if (currentTool !== 'lasso') return;
+            const { x, y } = pos(e);
+            const state = getLassoState(pageNum);
+            if (state.phase === 'selected') {
+                const adjustedPoints = state.points.map(p => ({ x: p.x + state.offsetX, y: p.y + state.offsetY }));
+                if (pointInPolygon(x, y, adjustedPoints)) {
+                    state.phase = 'moving'; state.dragStartX = x; state.dragStartY = y;
+                } else {
+                    commitLassoSelection(pageNum);
+                    state.phase = 'drawing'; state.points = [{ x, y }]; state.offsetX = 0; state.offsetY = 0; state.cutData = null;
+                }
+            } else {
+                state.phase = 'drawing'; state.points = [{ x, y }]; state.offsetX = 0; state.offsetY = 0; state.cutData = null;
+            }
+            if (e.cancelable) e.preventDefault();
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (currentTool !== 'lasso') return;
+            const { x, y } = pos(e);
+            const state = getLassoState(pageNum);
+            if (state.phase === 'drawing') { state.points.push({ x, y }); redraw(state); }
+            else if (state.phase === 'moving') {
+                const dx = x - state.dragStartX, dy = y - state.dragStartY;
+                state.offsetX += dx; state.offsetY += dy;
+                state.dragStartX = x; state.dragStartY = y;
+                state.points = state.points.map(p => ({ x: p.x + dx, y: p.y + dy }));
+                redraw(state);
+            }
+            if (e.cancelable) e.preventDefault();
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', (e) => {
+            if (currentTool !== 'lasso') return;
+            const state = getLassoState(pageNum);
+            if (state.phase === 'drawing' && state.points.length > 5) {
+                state.phase = 'selected';
+                state.points.push(state.points[0]);
+                const bbox = getBoundingBox(state.points);
+                state.bbox = bbox;
+                const ctx = drawCtxs[pageNum];
+                if (ctx) {
+                    snapshotPage(pageNum);
+                    const fullData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    const cutData = ctx.createImageData(ctx.canvas.width, ctx.canvas.height);
+                    for (let py = bbox.y; py < bbox.y + bbox.h && py < ctx.canvas.height; py++) {
+                        for (let px = bbox.x; px < bbox.x + bbox.w && px < ctx.canvas.width; px++) {
+                            if (pointInPolygon(px, py, state.points)) {
+                                const idx = (py * ctx.canvas.width + px) * 4;
+                                cutData.data[idx] = fullData.data[idx];
+                                cutData.data[idx+1] = fullData.data[idx+1];
+                                cutData.data[idx+2] = fullData.data[idx+2];
+                                cutData.data[idx+3] = fullData.data[idx+3];
+                                fullData.data[idx+3] = 0;
+                            }
+                        }
+                    }
+                    ctx.putImageData(fullData, 0, 0);
+                    state.cutData = cutData;
+                    state.offsetX = 0; state.offsetY = 0;
+                }
+                redraw(state);
+            } else if (state.phase === 'moving') {
+                state.phase = 'selected';
+                redraw(state);
+            }
+        });
+    }
+
+    // ─── DRAW ─────────────────────────────────────────────────────────────────
+
+    function attachDraw(canvas, ctx, pageNum) {
+        let drawing = false;
+        let strokeStarted = false;
+
+        const pos = (e) => {
+            const r = canvas.getBoundingClientRect();
+            const cx = e.touches ? e.touches[0].clientX : e.clientX;
+            const cy = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: (cx - r.left) * (canvas.width / r.width), y: (cy - r.top) * (canvas.height / r.height) };
+        };
+
+        const down = (e) => {
+            if (currentTool === 'pan' || currentTool === 'lasso') return;
+            snapshotPage(pageNum); // snapshot BEFORE stroke
+            drawing = true; strokeStarted = false;
+            const { x, y } = pos(e);
+            ctx.beginPath(); ctx.moveTo(x, y);
+            if (e.cancelable) e.preventDefault();
+        };
+
+        const move = (e) => {
+            if (!drawing || currentTool === 'pan' || currentTool === 'lasso') return;
+            const { x, y } = pos(e);
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            if (currentTool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = currentThickness * 10;
+                ctx.strokeStyle = 'rgba(0,0,0,1)';
+            } else if (currentTool === 'highlight') {
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.lineWidth = currentThickness * 6;
+                ctx.strokeStyle = currentColor + '80'; // 50% opacity for highlight
+            } else {
+                // Pen — full opacity, solid stroke with subtle shadow for depth
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.lineWidth = currentThickness;
+                ctx.strokeStyle = currentColor;
+                ctx.shadowColor = currentColor === '#1A1A1A' ? 'rgba(0,0,0,0.5)' : currentColor;
+                ctx.shadowBlur = currentThickness > 3 ? 1 : 0;
+            }
+            ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
+            strokeStarted = true;
+            if (e.cancelable) e.preventDefault();
+        };
+
+        const up = () => {
+            if (!drawing) return;
+            drawing = false;
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+            updateUndoRedoBtns();
+        };
+
+        canvas.addEventListener('mousedown', down);
+        canvas.addEventListener('mousemove', move);
+        canvas.addEventListener('mouseup', up);
+        canvas.addEventListener('mouseleave', up);
+        canvas.addEventListener('touchstart', down, { passive: false });
+        canvas.addEventListener('touchmove', move, { passive: false });
+        canvas.addEventListener('touchend', up);
+    }
 
     async function toggleTwoUp() {
         for (let pg in drawCtxs) { 
@@ -574,12 +990,10 @@
         }
         twoUpMode = !twoUpMode;
         document.getElementById('btnTwoUp').classList.toggle('on', twoUpMode);
-        
         const container = document.getElementById('pdfContainer');
         container.classList.toggle('two-up', twoUpMode);
-
         if (pdfDoc) {
-            drawCtxs = {};
+            drawCtxs = {}; lassoCvss = {}; lassoState = {};
             container.innerHTML = ''; 
             const renderTasks = [];
             for (let p = 1; p <= totalPages; p++) { renderTasks.push(renderPage(p)); }
@@ -624,9 +1038,10 @@
     }
 
     function updatePageNav() { document.getElementById('pageNavInfo').textContent = `${currentPage} / ${totalPages}`; }
+    
     function goToPage(p) {
         if (!pdfDoc || p < 1 || p > totalPages) return;
-        currentPage = p; updatePageNav();
+        currentPage = p; updatePageNav(); updateUndoRedoBtns();
         const pages = document.getElementById('pdfContainer').querySelectorAll('.pdf-page-wrap');
         if (pages[p - 1]) pages[p - 1].scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -643,7 +1058,10 @@
                 const dist = Math.abs(pg.getBoundingClientRect().top - cwRect.top);
                 if (dist < minDist) { minDist = dist; closest = i; }
             });
-            currentPage = closest + 1; updatePageNav();
+            const newPage = closest + 1;
+            if (newPage !== currentPage) {
+                currentPage = newPage; updatePageNav(); updateUndoRedoBtns();
+            }
         }, { passive: true });
     }
 
@@ -677,7 +1095,8 @@
 
         const container = document.getElementById('pdfContainer');
         container.innerHTML = getFishLoaderHTML();
-        currentFile = song; drawCtxs = {}; pdfDoc = null; totalPages = 0; currentPage = 1;
+        currentFile = song; drawCtxs = {}; lassoCvss = {}; lassoState = {}; pdfDoc = null; totalPages = 0; currentPage = 1;
+        undoStacks = {}; redoStacks = {}; updateUndoRedoBtns();
         if (autoScrollReq) toggleAutoScroll();
 
         try {
@@ -721,8 +1140,7 @@
         for (let sibling of container.children) {
             if (parseInt(sibling.dataset.page) > pageNum) {
                 container.insertBefore(wrap, sibling);
-                inserted = true;
-                break;
+                inserted = true; break;
             }
         }
         if (!inserted) container.appendChild(wrap);
@@ -732,42 +1150,26 @@
         pdfCvs.width = vp.width * dpr; pdfCvs.height = vp.height * dpr;
         const pdfCtx = pdfCvs.getContext('2d'); pdfCtx.scale(dpr, dpr);
         wrap.appendChild(pdfCvs);
+
+        // Draw layer
         const drawCvs = document.createElement('canvas');
         drawCvs.className = 'draw-layer';
         drawCvs.style.width = vp.width + 'px'; drawCvs.style.height = vp.height + 'px';
         drawCvs.width = vp.width; drawCvs.height = vp.height;
         wrap.appendChild(drawCvs);
         const ctx = drawCvs.getContext('2d'); drawCtxs[pageNum] = ctx;
-        attachDraw(drawCvs, ctx);
-        await page.render({ canvasContext: pdfCtx, viewport: vp }).promise;
-    }
+        attachDraw(drawCvs, ctx, pageNum);
 
-    function attachDraw(canvas, ctx) {
-        let drawing = false;
-        const pos = (e) => {
-            const r = canvas.getBoundingClientRect();
-            const cx = e.touches ? e.touches[0].clientX : e.clientX;
-            const cy = e.touches ? e.touches[0].clientY : e.clientY;
-            return { x: (cx - r.left) * (canvas.width / r.width), y: (cy - r.top) * (canvas.height / r.height) };
-        };
-        const down = (e) => {
-            if (currentTool === 'pan') return;
-            drawing = true; const { x, y } = pos(e);
-            ctx.beginPath(); ctx.moveTo(x, y); if (e.cancelable) e.preventDefault();
-        };
-        const move = (e) => {
-            if (!drawing || currentTool === 'pan') return;
-            const { x, y } = pos(e);
-            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-            if (currentTool === 'eraser') { ctx.globalCompositeOperation = 'destination-out'; ctx.lineWidth = currentThickness * 10; ctx.strokeStyle = 'rgba(0,0,0,1)'; }
-            else if (currentTool === 'highlight') { ctx.globalCompositeOperation = 'source-over'; ctx.lineWidth = currentThickness * 6; ctx.strokeStyle = currentColor + '66'; }
-            else { ctx.globalCompositeOperation = 'source-over'; ctx.lineWidth = currentThickness; ctx.strokeStyle = currentColor; }
-            ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
-            if (e.cancelable) e.preventDefault();
-        };
-        const up = () => { drawing = false; ctx.globalCompositeOperation = 'source-over'; };
-        canvas.addEventListener('mousedown', down); canvas.addEventListener('mousemove', move); canvas.addEventListener('mouseup', up); canvas.addEventListener('mouseleave', up);
-        canvas.addEventListener('touchstart', down, { passive: false }); canvas.addEventListener('touchmove', move, { passive: false }); canvas.addEventListener('touchend', up);
+        // Lasso overlay layer (on top of draw layer)
+        const lassoCvs = document.createElement('canvas');
+        lassoCvs.className = 'lasso-canvas';
+        lassoCvs.style.width = vp.width + 'px'; lassoCvs.style.height = vp.height + 'px';
+        lassoCvs.width = vp.width; lassoCvs.height = vp.height;
+        wrap.appendChild(lassoCvs);
+        lassoCvss[pageNum] = lassoCvs;
+        attachLasso(drawCvs, pageNum);
+
+        await page.render({ canvasContext: pdfCtx, viewport: vp }).promise;
     }
 
     function openModal(id) { document.getElementById(id).classList.add('active'); }
@@ -825,6 +1227,8 @@
 
     async function saveAnnotations() {
         if (!currentFile || !pdfDoc) return;
+        // Commit any active lasso selection before saving
+        commitAllLassoSelections();
         const btnList = document.querySelectorAll('.save-btn');
         const origHTMLs = Array.from(btnList).map(b => b.innerHTML);
         btnList.forEach(btn => { btn.innerHTML = '<span class="spinner" style="border-top-color:var(--gold)"></span>'; btn.style.pointerEvents = 'none'; });
