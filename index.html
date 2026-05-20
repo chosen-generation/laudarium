@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <title>Chosen Generations</title>
+    <title>Fides Sacrarium</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -195,7 +195,7 @@
         @keyframes dotPop { 0%,100%{r:2;opacity:0.3} 40%{r:3.5;opacity:1} }
 
         /* KNIGHT — halo pulses, piece sways, stars twinkle */
-        .icon-knight .knight-halo { transform-origin:26px 10px; animation:knightHalo 3.8s ease-in-out infinite; }
+        .icon-knight .knight-halo { transform-origin:26px 7px; animation:knightHalo 3.8s ease-in-out infinite; }
         .icon-knight .knight-body { transform-origin:26px 40px; animation:knightSway 3.8s ease-in-out infinite; }
         .icon-knight .knight-star1 { animation:starTwinkle 2.1s ease-in-out 0s infinite; }
         .icon-knight .knight-star2 { animation:starTwinkle 2.1s ease-in-out 0.7s infinite; }
@@ -239,8 +239,8 @@
     </div>
     <div class="splash-label">Digital Companion</div>
     <h1 class="splash-title">
-        <span class="splash-word"><span class="splash-word-inner">Chosen</span></span>
-        <span class="splash-word"><span class="splash-word-inner">Generations</span></span>
+        <span class="splash-word"><span class="splash-word-inner">Fides</span></span>
+        <span class="splash-word"><span class="splash-word-inner">Sacrarium</span></span>
     </h1>
     <div class="splash-line"></div>
 </div>
@@ -474,20 +474,32 @@
                             <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#C4940C" flood-opacity="0.5"/>
                         </filter>
                     </defs>
-                    <!-- Floating halo -->
-                    <ellipse class="knight-halo" cx="26" cy="10" rx="9" ry="3" fill="none" stroke="url(#g-kn)" stroke-width="2" filter="url(#fkn)"/>
                     <!-- Twinkling stars -->
-                    <circle class="knight-star1" cx="10" cy="8"  r="1.5" fill="#E2C278"/>
-                    <circle class="knight-star2" cx="42" cy="12" r="1.5" fill="#E2C278"/>
-                    <circle class="knight-star3" cx="7"  cy="22" r="1"   fill="#E2C278"/>
-                    <!-- Knight chess piece -->
+                    <circle class="knight-star1" cx="8"  cy="9"  r="1.5" fill="#E2C278"/>
+                    <circle class="knight-star2" cx="44" cy="7"  r="1.5" fill="#E2C278"/>
+                    <circle class="knight-star3" cx="6"  cy="22" r="1"   fill="#E2C278"/>
+                    <!-- Floating halo -->
+                    <ellipse class="knight-halo" cx="26" cy="7" rx="9" ry="2.8" fill="none" stroke="url(#g-kn)" stroke-width="1.8" filter="url(#fkn)"/>
+                    <!-- Chess knight piece silhouette -->
                     <g class="knight-body" filter="url(#fkn)">
-                        <rect x="12" y="44" width="28" height="5" rx="2.5" fill="url(#g-kn)"/>
-                        <rect x="18" y="34" width="16" height="12" rx="3" fill="url(#g-kn)"/>
-                        <path d="M20 34 C20 28 16 24 18 19 C19.5 15 24 14 27 15 C31 16 33 20 32 24 C31 27 29 30 30 34 Z" fill="url(#g-kn)"/>
-                        <path d="M18 22 C15 21 13 23 15 25 C16.5 27 20 26 20 25 Z" fill="url(#g-kn)"/>
-                        <circle cx="24" cy="20" r="1.5" fill="rgba(12,9,6,0.5)"/>
-                        <path d="M27 15 C30 12 32 14 31 18" fill="none" stroke="rgba(12,9,6,0.25)" stroke-width="1.5" stroke-linecap="round"/>
+                        <!-- Base platform -->
+                        <rect x="11" y="45" width="30" height="4"  rx="2"   fill="url(#g-kn)"/>
+                        <!-- Stem -->
+                        <rect x="16" y="40" width="20" height="6"  rx="1.5" fill="url(#g-kn)"/>
+                        <!-- Collar -->
+                        <rect x="17" y="37" width="18" height="4"  rx="1.5" fill="url(#g-kn)"/>
+                        <!-- Body of knight -->
+                        <path d="M20 37 C19 33 17 30 18 26 C19 22 21 20 22 18 L30 18 C32 20 33 23 32 27 C31 31 29 34 29 37 Z" fill="url(#g-kn)"/>
+                        <!-- Horse head profile facing right -->
+                        <path d="M22 18 C22 16 21 14 22 12 C23 10 25 9 27 9 C29 9 31 10 32 12 C33 13 33 15 32 17 C31 18 30 18 30 18 Z" fill="url(#g-kn)"/>
+                        <!-- Snout bump -->
+                        <path d="M32 14 C34 14 35 15 34 17 C33 18 32 18 32 17 Z" fill="url(#g-kn)"/>
+                        <!-- Ear spike -->
+                        <path d="M27 9 L25 5 L29 8 Z" fill="url(#g-kn)"/>
+                        <!-- Eye -->
+                        <circle cx="29" cy="13" r="1.5" fill="rgba(12,9,6,0.55)"/>
+                        <!-- Mane notch detail -->
+                        <path d="M22 18 C22 16 23 14 23 12" fill="none" stroke="rgba(12,9,6,0.2)" stroke-width="1.5" stroke-linecap="round"/>
                     </g>
                 </svg>
             </div>
