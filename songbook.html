@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Chosen Generations — Songbook</title>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <style>
@@ -221,12 +224,11 @@
 <div id="loginScreen">
     <div class="login-card">
         <h2 class="login-title">Songbook Access</h2>
-        <p class="login-sub">Please enter the password to view the library.</p>
-        <div id="loginError">Incorrect password. Please try again.</div>
-        <div class="login-input-wrap">
-            <input type="password" id="passwordInput" class="login-input" placeholder="Password">
+        <p class="login-sub" id="login-sub-msg">Checking your access…</p>
+        <div id="loginError" style="display:none">This area is for CG ministry members only. <a href="index.html" style="color:var(--gold)">Return home</a>.</div>
+        <div id="loginSpinner" style="display:flex;align-items:center;justify-content:center;padding:20px;">
+            <div style="width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;"></div>
         </div>
-        <button class="login-btn" onclick="checkPassword()">Enter</button>
     </div>
 </div>
 
@@ -486,25 +488,46 @@
     document.getElementById('esVerse').textContent = `"${v.text}"`;
     document.getElementById('esRef').textContent = `— ${v.ref}`;
 
-    // PASSWORD LOGIN
-    document.getElementById('passwordInput').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') checkPassword();
-    });
-
-    function checkPassword() {
-        const input = document.getElementById('passwordInput').value;
-        const errorMsg = document.getElementById('loginError');
-        if (input === 'stmichael') {
-            document.getElementById('loginScreen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('loginScreen').style.display = 'none';
-                openSidebar();
-                loadLibrary();
-            }, 400); 
-        } else {
-            errorMsg.style.display = 'block';
-        }
+    // FIREBASE AUTH — CG-ONLY ACCESS
+    function unlockSongbook() {
+        document.getElementById('loginScreen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('loginScreen').style.display = 'none';
+            openSidebar();
+            loadLibrary();
+        }, 400);
     }
+
+    (function initFirebaseSongbook() {
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwT3G3d_UDjy7F6CMkIa6G-kJJsNXkges",
+            authDomain: "fidessacrarium.firebaseapp.com",
+            projectId: "fidessacrarium",
+            storageBucket: "fidessacrarium.firebasestorage.app",
+            messagingSenderId: "302230560956",
+            appId: "1:302230560956:web:9548a26cf23b04dfa030b9"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        auth.onAuthStateChanged(user => {
+            if (!user) {
+                window.location.href = 'auth.html?redirect=songbook.html';
+                return;
+            }
+            db.ref('users/' + user.uid + '/profile').once('value').then(snap => {
+                const profile = snap.val();
+                if (profile && profile.ministry === 'CG') {
+                    unlockSongbook();
+                } else {
+                    document.getElementById('loginSpinner').style.display = 'none';
+                    document.getElementById('login-sub-msg').style.display = 'none';
+                    document.getElementById('loginError').style.display = 'block';
+                }
+            });
+        });
+    })();
 
     function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('overlay').classList.add('active'); }
     function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('active'); }
