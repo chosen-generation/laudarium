@@ -317,6 +317,10 @@ nav{
   :root{--sq-size:36px;--piece-size:24px}
 }
 </style>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="score.js"></script>
 </head>
 <body>
 
@@ -331,7 +335,6 @@ nav{
 
 <div id="app">
 
-<!-- SELECT SCREEN -->
 <div id="select-screen" class="screen active">
   <div class="select-hero">
     <div class="select-eyebrow">Communion of Saints</div>
@@ -344,7 +347,6 @@ nav{
   <div class="scroll-hint">Scroll to explore all saints</div>
 </div>
 
-<!-- GAME SCREEN -->
 <div id="game-screen" class="screen">
 
   <div class="game-topbar">
@@ -369,7 +371,6 @@ nav{
   <div class="game-body">
 
     <div class="board-col">
-      <!-- pills -->
       <div class="board-status">
         <div class="status-pill">
           <span class="status-pill-label">Turn</span>
@@ -384,28 +385,23 @@ nav{
         </div>
       </div>
 
-      <!-- board -->
       <div id="board-wrap"></div>
 
-      <!-- quote (mobile) -->
       <div class="info-panel quote-panel-mobile">
         <div class="quote-text" id="panel-quote"></div>
       </div>
 
-      <!-- captured (mobile) -->
       <div class="info-panel cap-panel-mobile" style="padding:10px 16px;text-align:center">
         <div class="info-label">Captured Pieces</div>
         <div class="cap-text" id="panel-captured-m"></div>
       </div>
 
-      <!-- move log (mobile) -->
       <div class="mobile-log">
         <div class="log-head">Move History</div>
         <div class="log-body" id="log-body-m"></div>
       </div>
     </div>
 
-    <!-- desktop log -->
     <div class="log-panel">
       <div class="log-head">Move History</div>
       <div class="log-body" id="log-body-d"></div>
@@ -417,7 +413,6 @@ nav{
 
 </div>
 
-<!-- Result -->
 <div class="result-overlay" id="result-overlay">
   <div class="result-box">
     <div class="result-icon" id="result-icon"></div>
@@ -430,7 +425,6 @@ nav{
   </div>
 </div>
 
-<!-- Promotion -->
 <div class="promo-overlay" id="promo-overlay">
   <div class="promo-box">
     <div class="promo-title">Promote your pawn</div>
@@ -677,6 +671,11 @@ function showResult(){
   document.getElementById('result-title').textContent=r.title;
   document.getElementById('result-sub').textContent=r.sub;
   o.classList.add('on');
+
+  if (!window.chessScoreAdded) {
+     setTimeout(() => addChessScore(game.result, currentSaint.diff), 300);
+     window.chessScoreAdded = true;
+  }
 }
 
 function resign(){if(game.gameOver)return;game.gameOver=true;game.result='black';showResult()}
@@ -693,7 +692,7 @@ function showSelectScreen(){
 function selectSaint(id){currentSaint=SAINTS.find(s=>s.id===id);if(currentSaint)startGame(currentSaint)}
 
 function startGame(saint){
-  game.reset();selected=null;legal=[];awaitPromo=null;aiOn=false;
+  game.reset();selected=null;legal=[];awaitPromo=null;aiOn=false; window.chessScoreAdded=false;
   document.getElementById('tb-emoji').textContent=saint.emoji;
   document.getElementById('tb-name').textContent=saint.name;
   document.getElementById('tb-status').textContent='Your move — White goes first';
@@ -709,6 +708,31 @@ function startGame(saint){
 }
 
 renderStrip();
+
+    // ── Score: record every finished chess game (victory adds to the rank) ──
+    function addChessScore(res, saintDifficulty) {
+        if (typeof Fides === 'undefined') return;
+        let pts, lbl;
+        if (res === 'white') {            // the player won
+            const diffPoints = { easy: 5, med: 15, hard: 25, legend: 50 };
+            pts = diffPoints[saintDifficulty] || 5;
+            lbl = 'Chess victory — ' + (DIFF_LABEL[saintDifficulty] || 'a worthy match');
+        } else if (res === 'draw') {
+            pts = 3;
+            lbl = 'Chess draw — an equal contest';
+        } else {                          // the player lost / resigned
+            pts = 1;
+            lbl = 'Chess match played';
+        }
+        Fides.award({
+            type: 'chess',
+            statKey: 'chessPlayed',
+            points: pts,
+            label: lbl,
+            extra: { saintDifficulty: saintDifficulty || '', result: res },
+            extraStats: res === 'white' ? { chessWon: 1 } : null
+        });
+    }
 </script>
 </body>
 </html>
