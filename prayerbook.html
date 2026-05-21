@@ -289,6 +289,10 @@ body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;o
   .pr-img-pane{height:140px}
 }
 </style>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="score.js"></script>
 </head>
 <body>
 <script>
@@ -475,7 +479,9 @@ function showNovenas(){
 function goBack(){
   const pv=document.getElementById('prayerView');
   const nm=document.getElementById('novenaMenu');
-  
+
+  // Note: score is awarded when a prayer is *started* (see loadPrayer),
+  // so navigating back simply returns to the menu.
   if(pv.classList.contains('active')){
     pv.classList.remove('active');
     setTimeout(()=> {
@@ -568,8 +574,9 @@ async function loadPrayer(type){
   document.getElementById('mainMenu').classList.add('hidden');
   document.getElementById('novenaMenu').classList.add('hidden');
   document.getElementById('prayerView').classList.add('active');
-  
+
   buildBeads();
+  awardPrayerStart(type, pd);
 }
 
 // ─── BEAD BUILDING ───────────────────────────────────
@@ -961,6 +968,31 @@ window.addEventListener('resize',()=>{
 });
 
 loadData();
+
+    // ── Score: every prayer begun is an offering ──────────────
+    // Points are matched to the depth/length of each devotion.
+    const PRAYER_POINTS = {
+        rosary: 40, dmc: 30, stmichael: 25, wotc: 25,
+        litany: 15, anima: 15, stpatrick: 20, precatio: 30
+    };
+    // Award a prayer-type once per page-load (prevents accidental farming
+    // by re-entering the same prayer; reload the page to offer it afresh).
+    const _prayerAwarded = {};
+    function awardPrayerStart(type, pd) {
+        if (typeof Fides === 'undefined' || !type) return;
+        if (_prayerAwarded[type]) return;
+        _prayerAwarded[type] = true;
+        const isNovena = type.indexOf('novena_') === 0;
+        const pts = isNovena ? 35 : (PRAYER_POINTS[type] || 15);
+        const title = (pd && pd.title) ? pd.title : 'Prayer';
+        Fides.award({
+            type: 'prayer',
+            statKey: 'prayersCompleted',
+            points: pts,
+            label: 'Prayer offered — ' + title,
+            extra: { prayerType: type }
+        });
+    }
 </script>
 </body>
 </html>
