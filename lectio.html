@@ -129,6 +129,10 @@
             .ty-text { font-size: 26px; padding: 0 20px; }
         }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="score.js"></script>
 </head>
 <body>
 <script>
@@ -295,6 +299,7 @@
     function triggerFinishAnimation() {
         const tyScreen = document.getElementById('thankYouScreen');
         tyScreen.classList.add('active');
+        addActivityScore('lectio');   // record the completed Lectio Divina
         setTimeout(() => {
             window.location.href = 'index.html';
         }, 4000);
@@ -419,6 +424,16 @@
 
     // Initialize
     fetchDailyReflection();
+
+    // ── Score: a completed Lectio Divina contemplation ──
+    function addActivityScore(type) {
+        if (typeof Fides === 'undefined') return;
+        if (type === 'rosary') {
+            Fides.award({ type:'rosary', statKey:'rosaryCompleted', points:40, label:'Rosary completed' });
+        } else {
+            Fides.award({ type:'lectio', statKey:'lectioCompleted', points:15, label:'Lectio Divina completed' });
+        }
+    }
 </script>
 </body>
 </html>
