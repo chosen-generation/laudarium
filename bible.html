@@ -91,6 +91,10 @@
         }
 
     </style>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="score.js"></script>
 </head>
 <body>
 
@@ -157,12 +161,19 @@
         // UI & ANIMATION LOGIC
         // ==========================================
         
+        // ── Score: each verse drawn from Scripture ──
+        function _addBibleScore() {
+            if (typeof Fides === 'undefined') return;
+            Fides.award({ type:'bible', statKey:'bibleDrawn', points:2, label:'Bible verse drawn' });
+        }
+
         function speakLord() {
             if (!isLoaded || bibleVerses.length === 0) return;
 
             // Pick a random verse from the loaded JSON
             const randomIndex = Math.floor(Math.random() * bibleVerses.length);
             const verse = bibleVerses[randomIndex];
+            _addBibleScore();
             
             // Set text
             document.getElementById('v-text').innerText = `"${verse.text}"`;
