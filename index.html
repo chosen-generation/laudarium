@@ -743,13 +743,14 @@ button.hero-tag:hover{border-color:var(--cyan2);transform:translateY(-2px);box-s
 <!-- EDIT PROFILE MODAL -->
 <div class="modal-overlay" id="edit-modal">
   <div class="modal-box">
-    <button class="modal-close" onclick="closeModal('edit-modal')">✕</button>
-    <div class="modal-title">Edit Profile</div>
-    <div class="modal-sub">Update your details and save to the cloud.</div>
+    <button class="modal-close" id="ep-close" onclick="closeModal('edit-modal')">✕</button>
+    <div class="modal-title" id="ep-title">Edit Profile</div>
+    <div class="modal-sub" id="ep-sub">Update your details and save to the cloud.</div>
     <div class="ep-field"><label>First Name</label><input type="text" id="ep-fname"></div>
     <div class="ep-field"><label>Last Name</label><input type="text" id="ep-lname"></div>
     <div class="ep-field"><label>Ministry</label>
       <select id="ep-ministry">
+        <option value="">— Select your ministry —</option>
         <option value="CG">CG (Chosen Generations)</option><option value="STASS">STASS</option>
         <option value="Servers">Servers</option><option value="Catechism">Catechism</option>
         <option value="Hospitality Minister">Hospitality Minister</option><option value="AV/IT">AV / IT</option>
@@ -760,6 +761,7 @@ button.hero-tag:hover{border-color:var(--cyan2);transform:translateY(-2px);box-s
     </div>
     <div class="ep-field"><label>Parish</label>
       <select id="ep-parish">
+        <option value="">— Select your parish —</option>
         <option>Cathedral of the Good Shepherd</option><option>Church of Christ the King</option>
         <option>Church of Divine Mercy</option><option>Church of Holy Cross</option>
         <option>Church of Holy Family</option><option>Church of Holy Spirit</option>
@@ -816,7 +818,11 @@ button.hero-tag:hover{border-color:var(--cyan2);transform:translateY(-2px);box-s
 <script>
 const AVATARS = {avatar1:'🕊️',avatar2:'⚔️',avatar3:'🌿',avatar4:'🕯️',avatar5:'🌹',avatar6:'✝️'};
 const HIST_ICONS = {bible:'📖',chess:'♟️',lectio:'🕯️',prayer:'✝️',rosary:'📿'};
-let _profile=null, _stats=null, _uid=null;
+let _profile=null, _stats=null, _uid=null, _promptedComplete=false, _setupMode=false;
+
+// Build marker — if you DON'T see this in the browser console, you are
+// running an old cached copy of this file. Hard-refresh or redeploy.
+console.log('%c✓ Fides index.html — PROFILE-SAVE FIX build','color:#6db8cc;font-weight:bold;font-size:13px');
 
 // Theme
 (function(){
@@ -844,31 +850,21 @@ function loadUserData(user){
     _profile = data.profile||{};
     _stats   = data.stats||{score:0};
 
-    // ── REGISTRATION FIX: pre-fill profile from auth on first login
-    // Covers both Google sign-in and email/password registration.
-    const needsProfile = !_profile.fname || !_profile.lname;
-    if(needsProfile){
-      // Try Google displayName first, then email prefix
-      const authName = user.displayName || '';
-      const emailPrefix = user.email ? user.email.split('@')[0] : '';
-      const parts = authName ? authName.split(' ') : emailPrefix.split('.');
-      const fname = parts[0] || '';
-      const lname = parts.slice(1).join(' ') || '';
-
-      const patch = {
-        fname: fname,
-        lname: lname,
-        displayName: (fname+' '+lname).trim() || emailPrefix || 'Pilgrim',
-        ministry: _profile.ministry || 'CG',
-        parish: _profile.parish || 'Cathedral of the Good Shepherd',
-        avatar: _profile.avatar || 'avatar1'
-      };
-      // Write once to Firebase so profile is never empty
-      db.ref('users/'+user.uid+'/profile').update(patch).catch(()=>{});
-      Object.assign(_profile, patch);
-    }
+    // ── FIRST-TIME PROFILE SETUP ───────────────────────────
+    // A fully set-up profile has a name, ministry, parish and a createdAt
+    // stamp. A brand-new account (just registered with Google or email) has
+    // none of these, so the Edit Profile dialog opens automatically — ONCE —
+    // to collect them. After the first save it never auto-opens again.
+    const profileNeedsSetup = !_profile.fname || !_profile.lname
+                           || !_profile.ministry || !_profile.parish
+                           || !_profile.createdAt;
 
     renderProfile();
+
+    if(profileNeedsSetup && !_promptedComplete){
+      _promptedComplete = true;
+      setTimeout(()=>openEditProfile(true), 3400); // after the splash clears
+    }
   });
 }
 
@@ -939,12 +935,30 @@ function renderProfile(){
 })();
 
 // ── EDIT PROFILE ──────────────────────────────────────
-function openEditProfile(){
+function openEditProfile(setup){
   if(!_profile) return;
-  document.getElementById('ep-fname').value = _profile.fname||'';
-  document.getElementById('ep-lname').value = _profile.lname||'';
-  document.getElementById('ep-ministry').value = _profile.ministry||'CG';
-  document.getElementById('ep-parish').value   = _profile.parish||'Cathedral of the Good Shepherd';
+  _setupMode = !!setup;
+
+  // First-time setup vs. an ordinary edit
+  document.getElementById('ep-title').textContent = setup
+    ? 'Welcome — Set Up Your Profile' : 'Edit Profile';
+  document.getElementById('ep-sub').textContent = setup
+    ? 'Tell us a little about yourself to get started. This is saved to your account.'
+    : 'Update your details and save to the cloud.';
+  // During first-time setup the dialog cannot be dismissed until it is saved.
+  document.getElementById('ep-close').style.display = setup ? 'none' : 'flex';
+
+  // Pre-fill the name — for a brand-new Google account use the Google name.
+  let fname = _profile.fname||'', lname = _profile.lname||'';
+  const u = auth.currentUser;
+  if(!fname && !lname && u && u.displayName){
+    const parts = u.displayName.trim().split(/\s+/);
+    fname = parts[0]||''; lname = parts.slice(1).join(' ')||'';
+  }
+  document.getElementById('ep-fname').value = fname;
+  document.getElementById('ep-lname').value = lname;
+  document.getElementById('ep-ministry').value = _profile.ministry||'';
+  document.getElementById('ep-parish').value   = _profile.parish||'';
   const av = _profile.avatar||'avatar1';
   document.querySelectorAll('input[name="ep-avatar"]').forEach(r=>r.checked=r.value===av);
   openModal('edit-modal');
@@ -956,9 +970,35 @@ async function saveProfile(){
   const parish   = document.getElementById('ep-parish').value;
   const checked  = document.querySelector('input[name="ep-avatar"]:checked');
   const avatar   = checked ? checked.value : 'avatar1';
-  if(!fname||!lname){alert('Please enter your name.');return;}
-  await db.ref('users/'+_uid+'/profile').update({fname,lname,displayName:fname+' '+lname,ministry,parish,avatar});
-  closeModal('edit-modal');
+  if(!fname||!lname){alert('Please enter your first and last name.');return;}
+  if(!ministry){alert('Please select your ministry.');return;}
+  if(!parish){alert('Please select your parish.');return;}
+  const btn = document.querySelector('#edit-modal .save-btn');
+  if(btn){ btn.disabled=true; btn.textContent='Saving…'; }
+  try{
+    // Save straight to the database; the live listener re-renders the page.
+    // Stamp createdAt/email so the profile counts as fully set up and the
+    // dialog never auto-opens again.
+    await db.ref('users/'+_uid+'/profile').update({
+      fname, lname, displayName:fname+' '+lname, ministry, parish, avatar,
+      email: (auth.currentUser&&auth.currentUser.email) || (_profile&&_profile.email) || '',
+      createdAt: (_profile&&_profile.createdAt) || Date.now()
+    });
+    // Seed the stats node on first-time setup so the pilgrim has a full record.
+    const statsSnap = await db.ref('users/'+_uid+'/stats').once('value');
+    if(!statsSnap.exists()){
+      await db.ref('users/'+_uid+'/stats').set({
+        score:0,bibleDrawn:0,chessPlayed:0,chessWon:0,
+        lectioCompleted:0,prayersCompleted:0,rosaryCompleted:0,lastActivity:Date.now()
+      });
+    }
+    _setupMode = false; // setup complete — no more auto pop-up
+    closeModal('edit-modal');
+  }catch(e){
+    alert('Could not save your profile: '+e.message);
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='Save Changes'; }
+  }
 }
 
 // ── LEADERBOARD ───────────────────────────────────────
@@ -1033,7 +1073,10 @@ function timeAgo(ts){
 // ── MODALS ────────────────────────────────────────────
 function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
-document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')}));
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',e=>{
+  // Don't allow click-outside to close the profile dialog during first-time setup.
+  if(e.target===m && !(m.id==='edit-modal' && _setupMode)) m.classList.remove('open');
+}));
 
 function doSignOut(){auth.signOut().then(()=>window.location.href='auth.html')}
 function toggleGlobalTheme(){
