@@ -12,17 +12,17 @@
         :root {
             --bg:#0C0906; --surface:#171208; --surface2:#1E1810; --surface3:#252018;
             --text:#F0E8D4; --text2:#9A8A74; --text3:#524438;
-            --gold:#C4A060; --gold2:#E2C278; --gold-dim:rgba(196,160,96,0.1); --gold-glow:rgba(196,160,96,0.25);
+            --cyan:#5BA8C0; --cyan2:#7AD4E4; --cyan-dim:rgba(91,168,192,0.1); --cyan-glow:rgba(91,168,192,0.25);
             --purple:#A07AB8; --purple-dim:rgba(160,122,184,0.12);
             --red:#C06060; --green:#72A87A;
-            --border:rgba(196,160,96,0.1); --radius:16px; --radius-sm:10px;
+            --border:rgba(91,168,192,0.1); --radius:16px; --radius-sm:10px;
             --expo:cubic-bezier(0.16,1,0.3,1);
         }
         [data-theme="light"] {
             --bg:#F5F0E8; --surface:#FFFFFF; --surface2:#F8F4EE; --surface3:#EDE7DB;
             --text:#1A1410; --text2:#6B6058; --text3:#A89E94;
-            --gold:#9A6E2A; --gold2:#C49040; --gold-dim:rgba(154,110,42,0.08); --gold-glow:rgba(154,110,42,0.2);
-            --border:rgba(154,110,42,0.15);
+            --cyan:#3a7888; --cyan2:#5a9fae; --cyan-dim:rgba(58,120,136,0.08); --cyan-glow:rgba(58,120,136,0.2);
+            --border:rgba(58,120,136,0.15);
         }
         *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
         html, body { height:100%; font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; -webkit-font-smoothing:antialiased; }
@@ -51,20 +51,20 @@
         }
         @keyframes cardUp { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
         .auth-card::before { content:''; position:absolute; top:0; left:40px; right:40px; height:1px;
-            background:linear-gradient(to right,transparent,var(--gold),transparent); opacity:0.4; }
+            background:linear-gradient(to right,transparent,var(--cyan2),transparent); opacity:0.4; }
 
         .brand { text-align:center; margin-bottom:36px; }
         .brand-cross { width:40px; height:56px; margin:0 auto 16px; animation:spinY 14s linear infinite; }
         @keyframes spinY { from{transform:rotateY(0)} to{transform:rotateY(360deg)} }
         .brand-name { font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:300; color:var(--text); }
-        .brand-sub { font-size:10px; letter-spacing:0.38em; text-transform:uppercase; color:var(--gold); margin-top:6px; font-weight:500; }
+        .brand-sub { font-size:10px; letter-spacing:0.38em; text-transform:uppercase; color:var(--cyan2); margin-top:6px; font-weight:500; }
 
         /* TABS */
         .tabs { display:flex; background:var(--surface2); border-radius:var(--radius-sm); padding:4px; margin-bottom:32px; gap:4px; }
         .tab { flex:1; padding:10px; border:none; background:none; color:var(--text2); font-family:'DM Sans',sans-serif;
             font-size:13px; font-weight:500; letter-spacing:0.05em; text-transform:uppercase;
             border-radius:8px; cursor:pointer; transition:all 0.3s; }
-        .tab.active { background:var(--surface); color:var(--gold); box-shadow:0 2px 8px rgba(0,0,0,0.3); }
+        .tab.active { background:var(--surface); color:var(--cyan2); box-shadow:0 2px 8px rgba(0,0,0,0.3); }
 
         /* PANELS */
         .panel { display:none; animation:fadeIn 0.4s ease; }
@@ -80,7 +80,7 @@
             border-radius:var(--radius-sm); color:var(--text); font-family:'DM Sans',sans-serif;
             font-size:14px; outline:none; transition:all 0.3s; appearance:none;
         }
-        .field input:focus, .field select:focus { border-color:var(--gold); background:var(--surface3); box-shadow:0 0 0 3px var(--gold-dim); }
+        .field input:focus, .field select:focus { border-color:var(--cyan2); background:var(--surface3); box-shadow:0 0 0 3px var(--cyan-dim); }
         .field input::placeholder { color:var(--text3); }
         .field select option { background:var(--surface2); }
 
@@ -91,8 +91,8 @@
         .av-img { width:100%; aspect-ratio:1; border-radius:50%; background:var(--surface2);
             border:2px solid var(--border); transition:all 0.3s; overflow:hidden;
             display:flex; align-items:center; justify-content:center; font-size:22px; }
-        .av-opt input:checked ~ .av-img { border-color:var(--gold); box-shadow:0 0 0 3px var(--gold-dim),0 0 12px var(--gold-glow); }
-        .av-img:hover { border-color:rgba(196,160,96,0.5); }
+        .av-opt input:checked ~ .av-img { border-color:var(--cyan2); box-shadow:0 0 0 3px var(--cyan-dim),0 0 12px var(--cyan-glow); }
+        .av-img:hover { border-color:rgba(91,168,192,0.5); }
 
         /* GOOGLE BTN */
         .google-btn {
@@ -102,7 +102,7 @@
             cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;
             transition:all 0.3s; margin-bottom:20px;
         }
-        .google-btn:hover { border-color:rgba(196,160,96,0.4); background:var(--surface3); transform:translateY(-1px); }
+        .google-btn:hover { border-color:rgba(91,168,192,0.4); background:var(--surface3); transform:translateY(-1px); }
         .google-btn svg { width:18px; height:18px; flex-shrink:0; }
 
         .divider { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
@@ -112,12 +112,12 @@
         /* SUBMIT */
         .submit-btn {
             width:100%; padding:14px; border-radius:var(--radius-sm); border:none;
-            background:linear-gradient(135deg,var(--gold2),var(--gold)); color:var(--bg);
+            background:linear-gradient(135deg,var(--cyan2),var(--cyan)); color:var(--bg);
             font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600;
             letter-spacing:0.08em; text-transform:uppercase; cursor:pointer;
             transition:all 0.3s; margin-top:8px; position:relative; overflow:hidden;
         }
-        .submit-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px var(--gold-glow); }
+        .submit-btn:hover { transform:translateY(-2px); box-shadow:0 8px 24px var(--cyan-glow); }
         .submit-btn:active { transform:translateY(0); }
         .submit-btn:disabled { opacity:0.5; cursor:not-allowed; transform:none; }
 
@@ -142,7 +142,7 @@
             border-radius:50%; border:1px solid var(--border); background:var(--surface);
             color:var(--text2); cursor:pointer; display:flex; align-items:center; justify-content:center;
             transition:all 0.3s; }
-        .theme-toggle:hover { border-color:var(--gold); color:var(--gold); }
+        .theme-toggle:hover { border-color:var(--cyan2); color:var(--cyan2); }
 
         @media (max-width:480px) {
             .auth-card { padding:36px 24px; }
@@ -222,25 +222,15 @@
         <!-- ── REGISTER ── -->
         <div class="panel" id="panel-register">
             <div class="error-msg" id="reg-error"></div>
-            <div class="success-msg" id="reg-success">Account created! Signing you in…</div>
+            <div class="success-msg" id="reg-success">Account created! Setting up your profile…</div>
 
             <button class="google-btn" onclick="signInGoogle()">
                 <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
                 Register with Google
             </button>
 
-            <div class="divider"><div class="divider-line"></div><div class="divider-text">or fill in details</div><div class="divider-line"></div></div>
+            <div class="divider"><div class="divider-line"></div><div class="divider-text">or use email</div><div class="divider-line"></div></div>
 
-            <div class="field-row">
-                <div class="field">
-                    <label>First Name</label>
-                    <input type="text" id="reg-fname" placeholder="Maria">
-                </div>
-                <div class="field">
-                    <label>Last Name</label>
-                    <input type="text" id="reg-lname" placeholder="Santos">
-                </div>
-            </div>
             <div class="field">
                 <label>Email</label>
                 <input type="email" id="reg-email" placeholder="your@email.com">
@@ -250,76 +240,13 @@
                 <input type="password" id="reg-pass" placeholder="min 6 characters">
             </div>
             <div class="field">
-                <label>Ministry</label>
-                <select id="reg-ministry">
-                    <option value="">— Select your ministry —</option>
-                    <option value="CG">CG (Chosen Generations)</option>
-                    <option value="STASS">STASS</option>
-                    <option value="Servers">Servers</option>
-                    <option value="Catechism">Catechism</option>
-                    <option value="Hospitality Minister">Hospitality Minister</option>
-                    <option value="AV/IT">AV / IT</option>
-                    <option value="Social Media">Social Media</option>
-                    <option value="Intercessory">Intercessory</option>
-                    <option value="Sacristan">Sacristan</option>
-                    <option value="Priest">Priest</option>
-                    <option value="OYP">OYP</option>
-                    <option value="Others">Others</option>
-                </select>
-            </div>
-            <div class="field">
-                <label>Parish</label>
-                <select id="reg-parish">
-                    <option value="">— Select your parish —</option>
-                    <option>Cathedral of the Good Shepherd</option>
-                    <option>Church of Christ the King</option>
-                    <option>Church of Divine Mercy</option>
-                    <option>Church of Holy Cross</option>
-                    <option>Church of Holy Family</option>
-                    <option>Church of Holy Spirit</option>
-                    <option>Church of Holy Trinity</option>
-                    <option>Church of Immaculate Heart of Mary</option>
-                    <option>Church of Mary Queen of Peace</option>
-                    <option>Church of Our Lady of Lourdes</option>
-                    <option>Church of Our Lady of Perpetual Succour</option>
-                    <option>Church of Our Lady Queen of Peace</option>
-                    <option>Church of Our Lady Star of the Sea</option>
-                    <option>Church of Risen Christ</option>
-                    <option>Church of Sacred Heart</option>
-                    <option>Church of Saint Alphonsus</option>
-                    <option>Church of Saint Anne</option>
-                    <option>Church of Saint Anthony</option>
-                    <option>Church of Saint Bernadette</option>
-                    <option>Church of Saint Francis of Assisi</option>
-                    <option>Church of Saint Francis Xavier</option>
-                    <option>Church of Saint Ignatius</option>
-                    <option>Church of Saint Joseph (Bukit Timah)</option>
-                    <option>Church of Saint Joseph (Victoria Street)</option>
-                    <option>Church of Saint Mary of the Angels</option>
-                    <option>Church of Saint Michael</option>
-                    <option>Church of Saint Stephen</option>
-                    <option>Church of Saint Teresa</option>
-                    <option>Church of Saint Vincent de Paul</option>
-                    <option>Church of Saints Peter and Paul</option>
-                    <option>Church of The Nativity of the Blessed Virgin Mary</option>
-                    <option>Church of Transfiguration</option>
-                    <option>Church of True Light</option>
-                    <option>Novena Church</option>
-                </select>
+                <label>Confirm Password</label>
+                <input type="password" id="reg-pass2" placeholder="re-enter password" onkeydown="if(event.key==='Enter')doRegister()">
             </div>
 
-            <!-- Avatar Picker -->
-            <div class="field">
-                <label>Choose Your Avatar</label>
-                <div class="avatar-grid">
-                    <label class="av-opt"><input type="radio" name="avatar" value="avatar1" checked><div class="av-img">🕊️</div></label>
-                    <label class="av-opt"><input type="radio" name="avatar" value="avatar2"><div class="av-img">⚔️</div></label>
-                    <label class="av-opt"><input type="radio" name="avatar" value="avatar3"><div class="av-img">🌿</div></label>
-                    <label class="av-opt"><input type="radio" name="avatar" value="avatar4"><div class="av-img">🕯️</div></label>
-                    <label class="av-opt"><input type="radio" name="avatar" value="avatar5"><div class="av-img">🌹</div></label>
-                    <label class="av-opt"><input type="radio" name="avatar" value="avatar6"><div class="av-img">✝️</div></label>
-                </div>
-            </div>
+            <p style="font-size:11.5px;color:var(--text2);line-height:1.6;margin-bottom:4px;">
+                You'll set up your name, ministry and avatar right after — on your profile page.
+            </p>
 
             <button class="submit-btn" id="reg-btn" onclick="doRegister()">Create Account</button>
         </div>
@@ -334,18 +261,30 @@
 <script>
     const AVATARS = { avatar1:'🕊️', avatar2:'⚔️', avatar3:'🌿', avatar4:'🕯️', avatar5:'🌹', avatar6:'✝️' };
 
-    // Check if already logged in
-    auth.onAuthStateChanged(user => {
-        document.getElementById('loading-overlay').classList.add('hidden');
-        if (user) {
-            const redir = new URLSearchParams(window.location.search).get('redirect') || 'index.html';
-            window.location.href = redir;
-        }
-    });
+    // Build marker — if you DON'T see this in the browser console, you are
+    // running an old cached copy of this file. Hard-refresh or redeploy.
+    console.log('%c✓ Fides auth.html — PROFILE-SAVE FIX build','color:#6db8cc;font-weight:bold;font-size:13px');
+
+    // While a sign-up (or a brand-new Google user) is being processed we must
+    // NOT let the auth-state listener redirect early — that race would carry
+    // the user to index.html before their profile is written to the database.
+    let authBusy = false;
+    let redirected = false;
+    function goToApp() {
+        if (redirected) return;
+        redirected = true;
+        window.location.href = getRedirect();
+    }
 
     function getRedirect() {
         return new URLSearchParams(window.location.search).get('redirect') || 'index.html';
     }
+
+    // Already logged in? Send returning users straight to the app.
+    auth.onAuthStateChanged(user => {
+        document.getElementById('loading-overlay').classList.add('hidden');
+        if (user && !authBusy) goToApp();
+    });
 
     function switchTab(tab) {
         document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0 && tab==='login')||(i===1 && tab==='register')));
@@ -373,7 +312,7 @@
         setLoading('login-btn', true);
         try {
             await auth.signInWithEmailAndPassword(email, pass);
-            window.location.href = getRedirect();
+            goToApp();
         } catch(e) {
             setLoading('login-btn', false);
             showError('login-error', e.code === 'auth/wrong-password' ? 'Incorrect password.' : e.code === 'auth/user-not-found' ? 'No account found with that email.' : e.message);
@@ -382,132 +321,48 @@
 
     async function doRegister() {
         hideError('reg-error');
-        const fname = document.getElementById('reg-fname').value.trim();
-        const lname = document.getElementById('reg-lname').value.trim();
         const email = document.getElementById('reg-email').value.trim();
-        const pass = document.getElementById('reg-pass').value;
-        const ministry = document.getElementById('reg-ministry').value;
-        const parish = document.getElementById('reg-parish').value;
-        const avatar = document.querySelector('input[name="avatar"]:checked').value;
+        const pass  = document.getElementById('reg-pass').value;
+        const pass2 = document.getElementById('reg-pass2').value;
 
-        if (!fname || !lname || !email || !pass || !ministry || !parish) {
-            showError('reg-error','Please fill in all fields.'); return;
-        }
+        if (!email || !pass || !pass2) { showError('reg-error','Please fill in all fields.'); return; }
         if (pass.length < 6) { showError('reg-error','Password must be at least 6 characters.'); return; }
+        if (pass !== pass2) { showError('reg-error','Passwords do not match.'); return; }
 
         setLoading('reg-btn', true);
+        authBusy = true; // hold off the auth-state redirect until the account exists
         try {
-            const cred = await auth.createUserWithEmailAndPassword(email, pass);
-            await saveProfile(cred.user, { fname, lname, ministry, parish, avatar });
+            await auth.createUserWithEmailAndPassword(email, pass);
+            // No profile is written here. The pilgrim fills in their name,
+            // ministry, parish and avatar on index.html — the Edit Profile
+            // dialog opens there automatically for brand-new accounts.
             document.getElementById('reg-success').classList.add('show');
-            setTimeout(() => window.location.href = getRedirect(), 1200);
+            setTimeout(goToApp, 700);
         } catch(e) {
+            authBusy = false;
             setLoading('reg-btn', false);
             showError('reg-error', e.code === 'auth/email-already-in-use' ? 'Email already registered.' : e.message);
         }
     }
 
     async function signInGoogle() {
+        authBusy = true; // hold off the auth-state redirect until the account exists
         const provider = new firebase.auth.GoogleAuthProvider();
         try {
-            const result = await auth.signInWithPopup(provider);
-            const user = result.user;
-            // Check if profile exists
-            const snap = await db.ref('users/' + user.uid + '/profile').once('value');
-            if (!snap.exists()) {
-                // New google user — show a quick modal to collect extra info
-                showGoogleProfileModal(user);
-            } else {
-                window.location.href = getRedirect();
-            }
+            await auth.signInWithPopup(provider);
+            // No profile work here — index.html opens the Edit Profile dialog
+            // automatically for any account that has not been set up yet.
+            goToApp();
         } catch(e) {
+            authBusy = false;
             showError('login-error', e.message);
             showError('reg-error', e.message);
         }
     }
 
-    async function saveProfile(user, data) {
-        await db.ref('users/' + user.uid + '/profile').set({
-            fname: data.fname,
-            lname: data.lname,
-            displayName: data.fname + ' ' + data.lname,
-            ministry: data.ministry,
-            parish: data.parish,
-            avatar: data.avatar || 'avatar1',
-            email: user.email,
-            createdAt: Date.now()
-        });
-        await db.ref('users/' + user.uid + '/stats').set({
-            score: 0, bibleDrawn: 0, chessPlayed: 0, chessWon: 0,
-            lectioCompleted: 0, prayersCompleted: 0, rosaryCompleted: 0, lastActivity: Date.now()
-        });
-    }
-
-    // Google new user modal
-    function showGoogleProfileModal(user) {
-        const modal = document.createElement('div');
-        modal.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px;';
-        modal.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px 32px;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;">
-            <h2 style="font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--gold);margin-bottom:6px;">Complete Your Profile</h2>
-            <p style="font-size:13px;color:var(--text2);margin-bottom:24px;">Welcome ${user.displayName||''}! Just a few more details.</p>
-            <div class="field"><label>Ministry</label>
-            <select id="gm-ministry" style="width:100%;padding:13px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;">
-                <option value="">— Select ministry —</option>
-                <option value="CG">CG (Chosen Generations)</option><option value="STASS">STASS</option><option value="Servers">Servers</option>
-                <option value="Catechism">Catechism</option><option value="Hospitality Minister">Hospitality Minister</option>
-                <option value="AV/IT">AV / IT</option><option value="Social Media">Social Media</option>
-                <option value="Intercessory">Intercessory</option><option value="Sacristan">Sacristan</option>
-                <option value="Priest">Priest</option><option value="OYP">OYP</option><option value="Others">Others</option>
-            </select></div>
-            <div class="field" style="margin-top:14px;"><label>Parish</label>
-            <select id="gm-parish" style="width:100%;padding:13px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;">
-                <option value="">— Select parish —</option>
-                <option>Cathedral of the Good Shepherd</option><option>Church of Christ the King</option><option>Church of Divine Mercy</option>
-                <option>Church of Holy Cross</option><option>Church of Holy Family</option><option>Church of Holy Spirit</option>
-                <option>Church of Holy Trinity</option><option>Church of Immaculate Heart of Mary</option><option>Church of Mary Queen of Peace</option>
-                <option>Church of Our Lady of Lourdes</option><option>Church of Our Lady of Perpetual Succour</option>
-                <option>Church of Our Lady Queen of Peace</option><option>Church of Our Lady Star of the Sea</option>
-                <option>Church of Risen Christ</option><option>Church of Sacred Heart</option><option>Church of Saint Alphonsus</option>
-                <option>Church of Saint Anne</option><option>Church of Saint Anthony</option><option>Church of Saint Bernadette</option>
-                <option>Church of Saint Francis of Assisi</option><option>Church of Saint Francis Xavier</option>
-                <option>Church of Saint Ignatius</option><option>Church of Saint Joseph (Bukit Timah)</option>
-                <option>Church of Saint Joseph (Victoria Street)</option><option>Church of Saint Mary of the Angels</option>
-                <option>Church of Saint Michael</option><option>Church of Saint Stephen</option><option>Church of Saint Teresa</option>
-                <option>Church of Saint Vincent de Paul</option><option>Church of Saints Peter and Paul</option>
-                <option>Church of The Nativity of the Blessed Virgin Mary</option><option>Church of Transfiguration</option>
-                <option>Church of True Light</option><option>Novena Church</option>
-            </select></div>
-            <div class="field" style="margin-top:14px;"><label>Choose Avatar</label>
-            <div class="avatar-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:8px;">
-                <label class="av-opt"><input type="radio" name="gavatar" value="avatar1" checked><div class="av-img" style="width:100%;aspect-ratio:1;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;">🕊️</div></label>
-                <label class="av-opt"><input type="radio" name="gavatar" value="avatar2"><div class="av-img" style="width:100%;aspect-ratio:1;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;">⚔️</div></label>
-                <label class="av-opt"><input type="radio" name="gavatar" value="avatar3"><div class="av-img" style="width:100%;aspect-ratio:1;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;">🌿</div></label>
-                <label class="av-opt"><input type="radio" name="gavatar" value="avatar4"><div class="av-img" style="width:100%;aspect-ratio:1;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;">🕯️</div></label>
-                <label class="av-opt"><input type="radio" name="gavatar" value="avatar5"><div class="av-img" style="width:100%;aspect-ratio:1;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;">🌹</div></label>
-                <label class="av-opt"><input type="radio" name="gavatar" value="avatar6"><div class="av-img" style="width:100%;aspect-ratio:1;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;">✝️</div></label>
-            </div></div>
-            <button onclick="saveGoogleProfile()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#E2C278,#C4A060);color:#0C0906;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:20px;letter-spacing:0.08em;text-transform:uppercase;">Save & Continue</button>
-        </div>`;
-        document.body.appendChild(modal);
-        window._googleModal = modal;
-        window._googleUser = user;
-    }
-
-    async function saveGoogleProfile() {
-        const ministry = document.getElementById('gm-ministry').value;
-        const parish = document.getElementById('gm-parish').value;
-        const avatar = document.querySelector('input[name="gavatar"]:checked').value;
-        if (!ministry || !parish) { alert('Please select your ministry and parish.'); return; }
-        const user = window._googleUser;
-        const nameParts = (user.displayName || 'User').split(' ');
-        await saveProfile(user, {
-            fname: nameParts[0] || 'User',
-            lname: nameParts.slice(1).join(' ') || '',
-            ministry, parish, avatar
-        });
-        window._googleModal.remove();
-        window.location.href = getRedirect();
-    }
+    // Profile setup (name, ministry, parish, avatar) is no longer collected
+    // here — it happens once on index.html via the Edit Profile dialog, which
+    // opens automatically for any account that hasn't been set up yet.
 
     function toggleGlobalTheme() {
         const current = document.body.getAttribute('data-theme') || 'dark';
